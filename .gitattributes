@@ -1,0 +1,2 @@
+# Preserve reviewed report/source downloads byte-for-byte.
+public/downloads/** -text
