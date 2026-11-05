@@ -1,0 +1,186 @@
+{
+  "verifiedOn": "2026-10-25",
+  "python": "3.12.14",
+  "source": "HW2Mahmood.ipynb, original code-cell text exported without logic edits",
+  "originalEvidence": {
+    "cells": 1,
+    "codeCells": 1,
+    "savedOutputs": 0,
+    "executionCounts": [
+      null
+    ]
+  },
+  "fullRun": {
+    "seed": 0,
+    "input": [
+      "8 (exit inventory menu)"
+    ],
+    "inputsNote": "Function examples and product records are supplied in the notebook; seed and menu answer are verification harness controls",
+    "exitCode": 0,
+    "stdoutLines": 11872,
+    "stderr": "",
+    "races": {
+      "tortoise": 42,
+      "hare": 8,
+      "ties": 0
+    }
+  },
+  "checks": [
+    {
+      "name": "sum_product supplied examples",
+      "status": "passed",
+      "details": "Three supplied calls, unchanged function bodies"
+    },
+    {
+      "name": "weighted GPA supplied example",
+      "status": "passed",
+      "details": "Supplied credit/grade pairs"
+    },
+    {
+      "name": "odd GPA argument count",
+      "status": "passed",
+      "details": "Supplied malformed pair example"
+    },
+    {
+      "name": "tennis supplied examples",
+      "status": "passed",
+      "details": "All five supplied score calls"
+    },
+    {
+      "name": "sieve supplied limit",
+      "status": "passed",
+      "details": "Independent trial-division oracle for every integer below 25,000"
+    },
+    {
+      "name": "race movement interval boundaries",
+      "status": "passed",
+      "details": "Original movement functions; controlled random rolls, including lower-track clamping"
+    },
+    {
+      "name": "race winner branches",
+      "status": "passed",
+      "details": "Original loop with harness-controlled movement results, not a probability test"
+    },
+    {
+      "name": "inventory supplied records",
+      "status": "passed",
+      "details": "create_sample_file generates the four supplied demo products"
+    },
+    {
+      "name": "inventory total value",
+      "status": "passed",
+      "details": "Supplied fixture values, not real-time product prices"
+    },
+    {
+      "name": "inventory maximum price",
+      "status": "passed",
+      "details": "Supplied fixture"
+    },
+    {
+      "name": "inventory minimum quantity",
+      "status": "passed",
+      "details": "Supplied fixture"
+    },
+    {
+      "name": "inventory threshold filter",
+      "status": "passed",
+      "details": "Harness threshold 5 against supplied fixture"
+    },
+    {
+      "name": "inventory append and update round trip",
+      "status": "passed",
+      "details": "Harness record added to isolated data.txt, then loaded and updated"
+    },
+    {
+      "name": "inventory sort and persistence",
+      "status": "passed",
+      "details": "Original save/reload code preserves five records and orders prices"
+    },
+    {
+      "name": "inventory malformed-line path",
+      "status": "passed",
+      "details": "One harness-created malformed line; valid records retained"
+    }
+  ],
+  "knownLimitations": [
+    {
+      "name": "zero-total-credit GPA",
+      "reproduced": true,
+      "exception": "ZeroDivisionError",
+      "scope": "No zero-credit guard"
+    },
+    {
+      "name": "sieve limit below two",
+      "reproduced": true,
+      "exception": "IndexError",
+      "scope": "Fixed writes to indexes 0 and 1"
+    },
+    {
+      "name": "race collision beyond finish",
+      "reproduced": true,
+      "exception": "IndexError",
+      "scope": "Equal positions above 60 index past the display list"
+    }
+  ],
+  "sieve": {
+    "limit": 25000,
+    "primes": 2762,
+    "largest": 24989
+  },
+  "summary": {
+    "passed": 15,
+    "failed": 0,
+    "knownLimitationsReproduced": 3
+  },
+  "exportRuns": [
+    {
+      "question": 1,
+      "file": "exercises/aggregates.py",
+      "python": "3.12.14",
+      "exitCode": 0,
+      "stdoutLines": 3,
+      "controls": "supplied embedded examples"
+    },
+    {
+      "question": 2,
+      "file": "exercises/weighted_gpa.py",
+      "python": "3.12.14",
+      "exitCode": 0,
+      "stdoutLines": 3,
+      "controls": "supplied embedded examples"
+    },
+    {
+      "question": 3,
+      "file": "exercises/race_simulation.py",
+      "python": "3.12.14",
+      "exitCode": 0,
+      "stdoutLines": 9087,
+      "controls": "seed 0"
+    },
+    {
+      "question": 4,
+      "file": "exercises/prime_sieve.py",
+      "python": "3.12.14",
+      "exitCode": 0,
+      "stdoutLines": 2762,
+      "controls": "supplied embedded examples"
+    },
+    {
+      "question": 5,
+      "file": "exercises/tennis_scoring.py",
+      "python": "3.12.14",
+      "exitCode": 0,
+      "stdoutLines": 5,
+      "controls": "supplied embedded examples"
+    },
+    {
+      "question": 6,
+      "file": "exercises/inventory.py",
+      "python": "3.12.14",
+      "exitCode": 0,
+      "stdoutLines": 11,
+      "controls": "menu input 8"
+    }
+  ],
+  "verificationScope": "New portfolio verification, not original submission results. Full notebook and six exact section exports executed; function bodies loaded unchanged for targeted checks. Harness controls identified per run."
+}

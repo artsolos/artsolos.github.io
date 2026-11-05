@@ -1,0 +1,9 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { courses, courseProjectSlugs } from '../data/organization';
+import { href } from '../lib/site';
+const oldHeadingIds:Record<string,string>={'digital-design':'course-title','engineering-algorithms':'algorithms-title','computing-fundamentals':'computing-title','physics-1':'physics1-title','physics-2':'physics-title'};
+---
+<BaseLayout title="Coursework" description="Eight engineering, physics and Business Administration course collections, with complete labs, reports and documented limits."><div class="container editorial-page"><header data-entrance-load class="collection-head"><p class="eyebrow">Engineering / physics / business</p><h1 class="display-title">Coursework</h1><p class="lede">Supporting course work, with the designs, test evidence, and reports behind it. Explore a subject to follow its full sequence.</p></header>
+{['Engineering','Physics','Business'].map(group=><section class="course-group" aria-label={group}><h2 class="eyebrow">{group === 'Business'?'Business Administration minor':group}</h2><div class="course-collection">{courses.filter(c=>c.group===group).map(c=><article class="course-row" id={c.id}><p class="eyebrow">{c.code} / {courseProjectSlugs(c.id).length} case studies</p><h3 id={oldHeadingIds[c.id]}><a href={href(`coursework/${c.id}/`)}>{c.title} ↗</a></h3><p>{c.description}</p></article>)}</div></section>)}
+<p class="collection-footer">Four additional engineering builds have no confirmed course code and remain in <a href={href('work/')}>Work</a>. See the <a href={href('business/')}>Business overview</a> or <a href={href('archive/')}>early-work archive</a>.</p></div></BaseLayout>

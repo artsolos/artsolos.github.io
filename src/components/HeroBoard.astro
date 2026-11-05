@@ -1,0 +1,521 @@
+---
+// Hero centerpiece: a conceptual, layered "compute board" connecting software,
+// FPGA logic, and sensing/actuation. It is an illustration of where my coursework
+// sits in the stack, not a schematic of a specific board.
+//
+// Interaction: layer buttons (aria-pressed) highlight a layer and list the projects
+// in that category. Everything works by click/tap/keyboard; pointer tilt is a
+// decorative extra for fine pointers only. The signal pulse runs once on
+// load and then stops; reduced motion shows a static scene.
+import Icon from './Icon.astro';
+
+interface LayerProject {
+  title: string;
+  href: string;
+}
+interface Layer {
+  id: 'software' | 'logic' | 'physical';
+  label: string;
+  detail: string;
+  projects: LayerProject[];
+  allHref: string;
+}
+interface Props {
+  layers: Layer[];
+}
+const { layers } = Astro.props;
+
+// Isometric projection of plate coordinates (x right, y back) onto the SVG.
+const W = 220;
+const D = 150;
+const ox = 210;
+const tops = { software: 24, logic: 142, physical: 260 } as const;
+const P = (x: number, y: number, layer: keyof typeof tops) =>
+  [ox + 0.866 * (x - y), tops[layer] + 0.5 * (x + y)].map((n) => +n.toFixed(1));
+const pt = (x: number, y: number, l: keyof typeof tops) => P(x, y, l).join(',');
+const poly = (pts: [number, number][], l: keyof typeof tops) => pts.map(([x, y]) => pt(x, y, l)).join(' ');
+const plate = (l: keyof typeof tops) => poly([[0, 0], [W, 0], [W, D], [0, D]], l);
+const rect = (x: number, y: number, w: number, h: number, l: keyof typeof tops) =>
+  poly([[x, y], [x + w, y], [x + w, y + h], [x, y + h]], l);
+const line = (pts: [number, number][], l: keyof typeof tops) => 'M' + pts.map(([x, y]) => pt(x, y, l)).join(' L');
+
+// Signal path: software core -> via -> FPGA fabric -> via -> actuator.
+const [sx, sy] = P(70, 62, 'software');
+const [lx1, ly1] = P(78, 70, 'logic');
+const [lx2, ly2] = P(150, 70, 'logic');
+const [lx3, ly3] = P(150, 112, 'logic');
+const [px1, py1] = P(132, 112, 'physical');
+const pulsePath = `M${sx},${sy} L${lx1},${ly1 - 1} L${lx1},${ly1} L${lx2},${ly2} L${lx3},${ly3} L${px1},${py1}`;
+// Vertical vias drawn in screen space between plates.
+const via1 = `M${sx},${sy} L${lx1},${ly1}`;
+const via2 = `M${lx3},${ly3} L${px1},${py1}`;
+
+// FPGA fabric: a small grid of logic cells.
+const cells: string[] = [];
+for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) cells.push(rect(112 + i * 16, 50 + j * 15, 10, 9, 'logic'));
+---
+
+<div class="board" data-board>
+  <div class="stage" data-stage>
+    <svg viewBox="0 0 440 470" role="img" aria-labelledby="board-title board-desc" class="board-svg">
+      <title id="board-title">Layered diagram: software, FPGA logic, and sensing and actuation</title>
+      <desc id="board-desc">
+        Three stacked layers. The top layer is C++ software on embedded Linux. The middle layer is FPGA logic such as
+        PIO registers and PWM generators. The bottom layer is physical hardware such as servos, motors, and an ultrasonic
+        sensor. Lines connect the layers to show a signal travelling from software, through logic, to an actuator. This
+        is a conceptual illustration.
+      </desc>
+      <defs>
+        <linearGradient id="plateFill" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#1b2735" />
+          <stop offset="1" stop-color="#121a24" />
+        </linearGradient>
+      </defs>
+
+      <!-- Bottom layer: sensing & actuation -->
+      <g class="layer" data-layer="physical">
+        <polygon class="plate" points={plate('physical')} />
+        <!-- servo body and horn -->
+        <polygon class="part" points={rect(108, 92, 48, 30, 'physical')} />
+        <path class="part-line" d={line([[124, 107], [146, 96]], 'physical')} />
+        <!-- ultrasonic sensor: two transducers -->
+        <polygon class="part" points={rect(34, 30, 56, 26, 'physical')} />
+        <ellipse class="part-line" cx={P(50, 43, 'physical')[0]} cy={P(50, 43, 'physical')[1]} rx="9" ry="5" />
+        <ellipse class="part-line" cx={P(74, 43, 'physical')[0]} cy={P(74, 43, 'physical')[1]} rx="9" ry="5" />
+        <!-- motor -->
+        <polygon class="part" points={rect(160, 30, 36, 36, 'physical')} />
+        <path class="trace" d={line([[90, 43], [120, 43], [120, 92]], 'physical')} />
+        <path class="trace" d={line([[178, 66], [178, 80], [156, 100]], 'physical')} />
+      </g>
+
+      <!-- Middle layer: FPGA logic -->
+      <g class="layer" data-layer="logic">
+        <polygon class="plate" points={plate('logic')} />
+        <polygon class="part" points={rect(104, 42, 76, 58, 'logic')} />
+        {cells.map((c) => <polygon class="cell" points={c} />)}
+        <polygon class="part" points={rect(30, 52, 40, 30, 'logic')} />
+        <path class="trace" d={line([[70, 67], [104, 67]], 'logic')} />
+        <path class="trace" d={line([[150, 100], [150, 125]], 'logic')} />
+        <path class="trace" d={line([[30, 120], [90, 120], [90, 100]], 'logic')} />
+      </g>
+
+      <!-- Top layer: software -->
+      <g class="layer" data-layer="software">
+        <polygon class="plate" points={plate('software')} />
+        <polygon class="part" points={rect(44, 40, 52, 44, 'software')} />
+        <path class="part-line" d={line([[54, 52], [86, 52]], 'software')} />
+        <path class="part-line" d={line([[54, 62], [80, 62]], 'software')} />
+        <path class="part-line" d={line([[54, 72], [84, 72]], 'software')} />
+        <polygon class="part" points={rect(124, 40, 60, 18, 'software')} />
+        <polygon class="part" points={rect(124, 70, 60, 18, 'software')} />
+        <path class="trace" d={line([[96, 50], [124, 50]], 'software')} />
+        <path class="trace" d={line([[96, 78], [124, 78]], 'software')} />
+      </g>
+
+      <!-- Vias and the signal pulse (drawn last so they sit on top) -->
+      <path class="via" d={via1} />
+      <path class="via" d={via2} />
+      <path class="pulse" d={pulsePath} pathLength="100" data-pulse />
+
+      <!-- Layer labels (screen space, unskewed) -->
+      <g class="labels" aria-hidden="true">
+        <text x="12" y={tops.software + 30} class="lbl">01 SOFTWARE</text>
+        <text x="12" y={tops.software + 46} class="sub">C++ · Linux · mmap()</text>
+        <text x="12" y={tops.logic + 30} class="lbl">02 FPGA LOGIC</text>
+        <text x="12" y={tops.logic + 46} class="sub">PIO · PWM · counters</text>
+        <text x="12" y={tops.physical + 30} class="lbl">03 SENSE + ACTUATE</text>
+        <text x="12" y={tops.physical + 46} class="sub">servo · motor · sonar</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="controls">
+    <div class="control-row">
+      <p class="eyebrow" id="layer-heading">Explore by layer</p>
+      <button class="replay" type="button" data-replay hidden>
+        <Icon name="replay" />
+        <span>Replay signal</span>
+      </button>
+    </div>
+    <div class="layer-buttons" role="group" aria-labelledby="layer-heading" hidden>
+      {
+        layers.map((l, i) => (
+          <button type="button" class="layer-btn" data-target={l.id} aria-pressed={i === 0 ? 'true' : 'false'} aria-controls={`panel-${l.id}`}>
+            <span class="num">0{i + 1}</span>
+            {l.label}
+          </button>
+        ))
+      }
+    </div>
+    <div class="panels" aria-live="polite">
+      {
+        layers.map((l, i) => (
+          <section class="panel" id={`panel-${l.id}`} data-panel={l.id} data-active={i === 0 ? 'true' : 'false'} aria-label={l.label}>
+            <p class="panel-detail">{l.detail}</p>
+            <ul>
+              {l.projects.map((p) => (
+                <li>
+                  <a href={p.href}>
+                    {p.title}
+                    <Icon name="arrow-right" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <a class="panel-all" href={l.allHref}>
+              All {l.label.toLowerCase()} work
+            </a>
+          </section>
+        ))
+      }
+    </div>
+    <p class="note">Conceptual diagram of the stack my coursework spans, not a drawing of a specific board.</p>
+  </div>
+</div>
+
+<script>
+  import {onPage} from '../lib/page-lifecycle';
+  onPage(signal => {
+  const board = document.querySelector<HTMLElement>('[data-board]');
+  if (board) {
+    board.classList.add('is-enhanced');
+    board.querySelector<HTMLElement>('.layer-buttons')!.hidden = false;
+    const stage = board.querySelector<HTMLElement>('[data-stage]')!;
+    const pulse = board.querySelector<SVGPathElement>('[data-pulse]')!;
+    const replay = board.querySelector<HTMLButtonElement>('[data-replay]')!;
+    const buttons = [...board.querySelectorAll<HTMLButtonElement>('.layer-btn')];
+    const panels = [...board.querySelectorAll<HTMLElement>('[data-panel]')];
+    const layers = [...board.querySelectorAll<SVGGElement>('[data-layer]')];
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    const select = (id: string) => {
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.target === id)));
+      panels.forEach((p) => (p.dataset.active = String(p.dataset.panel === id)));
+      layers.forEach((g) => g.classList.toggle('active', g.dataset.layer === id));
+    };
+    select(buttons[0]?.dataset.target ?? 'software');
+
+    // Arrow keys move between layer buttons (they still Tab normally).
+    buttons.forEach((b, i) => {
+      b.addEventListener('click', () => {
+        select(b.dataset.target!);
+        run(1);
+      });
+      b.addEventListener('keydown', (e) => {
+        const step = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+        if (!step) return;
+        e.preventDefault();
+        const next = buttons[(i + step + buttons.length) % buttons.length];
+        next.focus();
+        next.click();
+      });
+    });
+
+    // Signal pulse via the Web Animations API. Runs a short intro, then stops.
+    let anim: Animation | null = null;
+    let frame = 0;
+    let io: IntersectionObserver | undefined;
+    const run = (iterations: number) => {
+      if (document.body.dataset.stage === 'layout' || reduce.matches || typeof pulse.animate !== 'function') return;
+      anim?.cancel();
+      pulse.style.opacity = '1';
+      anim = pulse.animate([{ strokeDashoffset: 112 }, { strokeDashoffset: -12 }], {
+        duration: 2400,
+        iterations,
+        easing: 'cubic-bezier(.45,.05,.35,1)',
+      });
+      anim.onfinish = () => {
+        pulse.style.opacity = '0';
+      };
+    };
+    {
+      replay.hidden = document.body.dataset.stage === 'layout' || reduce.matches;
+      replay.addEventListener('click', () => run(1));
+      // Start once the board is on screen; pause offscreen and in hidden tabs.
+      let started = false;
+      io = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting && !started) {
+          started = true;
+          run(1);
+        } else if (anim && anim.playState !== 'finished') {
+          entry.isIntersecting && !document.hidden && !reduce.matches ? anim.play() : anim.pause();
+        }
+      });
+      io.observe(board);
+      document.addEventListener('visibilitychange', () => {
+        if (!anim || anim.playState === 'finished') return;
+        if (document.hidden) anim.pause();
+        else if (!reduce.matches && board.getBoundingClientRect().bottom > 0 && board.getBoundingClientRect().top < innerHeight) anim.play();
+      }, {signal});
+    }
+
+    // Subtle pointer tilt for mouse/trackpad users only.
+    const fine = window.matchMedia('(hover: hover) and (pointer: fine)');
+    if (fine.matches && !reduce.matches) {
+      board.addEventListener('pointermove', (e) => {
+        if (document.body.dataset.stage === 'layout' || reduce.matches) return;
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(() => {
+          if (document.body.dataset.stage === 'layout' || reduce.matches) return;
+          const r = stage.getBoundingClientRect();
+          const x = (e.clientX - r.left) / r.width - 0.5;
+          const y = (e.clientY - r.top) / r.height - 0.5;
+          stage.style.setProperty('--ry', `${(x * 8).toFixed(2)}deg`);
+          stage.style.setProperty('--rx', `${(-y * 6).toFixed(2)}deg`);
+        });
+      });
+      board.addEventListener('pointerleave', () => {
+        stage.style.setProperty('--ry', '0deg');
+        stage.style.setProperty('--rx', '0deg');
+      });
+    }
+    reduce.addEventListener('change', () => {
+      replay.hidden = document.body.dataset.stage === 'layout' || reduce.matches;
+      if (reduce.matches) {
+        anim?.cancel();
+        anim = null;
+        pulse.style.opacity = '0';
+        replay.hidden = true;
+        stage.style.setProperty('--ry', '0deg');
+        stage.style.setProperty('--rx', '0deg');
+      }
+    }, {signal});
+    return () => {io?.disconnect();anim?.cancel();cancelAnimationFrame(frame);};
+  }
+  });
+</script>
+
+<style>
+  .board {
+    display: grid;
+    gap: var(--s-4);
+  }
+  .stage {
+    perspective: 900px;
+    --rx: 0deg;
+    --ry: 0deg;
+  }
+  .board-svg {
+    width: 100%;
+    max-width: min(26rem, 52vh);
+    margin-inline: auto;
+    height: auto;
+    transform: rotateX(var(--rx)) rotateY(var(--ry));
+    transition: transform 400ms var(--ease-out);
+    overflow: visible;
+  }
+  .plate {
+    fill: url(#plateFill);
+    stroke: #3a4b60;
+    stroke-width: 1;
+    transition:
+      stroke var(--dur-med) ease,
+      opacity var(--dur-med) ease;
+  }
+  .part {
+    fill: #1f2c3c;
+    stroke: #4f6178;
+    stroke-width: 1;
+  }
+  .cell {
+    fill: #263548;
+    stroke: none;
+  }
+  .part-line {
+    fill: none;
+    stroke: #6b7f96;
+    stroke-width: 1.2;
+    stroke-linecap: round;
+  }
+  .trace {
+    fill: none;
+    stroke: #3f5068;
+    stroke-width: 1.4;
+  }
+  .via {
+    fill: none;
+    stroke: #3f5068;
+    stroke-width: 1.4;
+    stroke-dasharray: 3 4;
+  }
+  .pulse {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-dasharray: 12 112;
+    stroke-dashoffset: 112;
+    opacity: 0;
+    filter: drop-shadow(0 0 4px rgb(139 213 255 / 0.6));
+  }
+  .lbl {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    fill: var(--text);
+  }
+  .sub {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    fill: var(--text-2);
+  }
+  .layer {
+    transition: opacity var(--dur-med) ease;
+  }
+  .is-enhanced .layer:not(.active) {
+    opacity: 0.55;
+  }
+  .layer.active .plate {
+    stroke: var(--accent);
+  }
+  .layer.active .trace {
+    stroke: var(--accent-line);
+  }
+  .layer.active .cell {
+    fill: #2f4762;
+  }
+
+  .controls {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+    flex-wrap: wrap;
+  }
+  .replay {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: 44px;
+    padding: 0 var(--s-3);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    font-size: var(--fs-label);
+    cursor: pointer;
+  }
+  .replay:hover {
+    color: var(--text);
+    border-color: var(--control);
+  }
+  .replay[hidden] {
+    display: none;
+  }
+  .replay .icon {
+    width: 16px;
+    height: 16px;
+  }
+  .layer-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-2);
+  }
+  .layer-buttons[hidden] { display: none; }
+  .layer-btn {
+    display: grid;
+    gap: 2px;
+    align-content: center;
+    min-height: 56px;
+    padding: var(--s-2) var(--s-3);
+    text-align: left;
+    background: var(--surface);
+    border: 1px solid var(--control);
+    border-radius: var(--radius-sm);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    line-height: 1.25;
+    cursor: pointer;
+    transition:
+      border-color var(--dur-fast) ease,
+      background-color var(--dur-fast) ease;
+  }
+  .layer-btn .num {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    color: var(--text-2);
+  }
+  .layer-btn:hover {
+    border-color: var(--accent);
+  }
+  .layer-btn[aria-pressed='true'] {
+    background: var(--accent-wash);
+    border-color: var(--accent);
+    color: var(--text);
+  }
+  .layer-btn[aria-pressed='true'] .num {
+    color: var(--accent);
+  }
+  .panel {
+    padding: var(--s-4);
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius);
+  }
+  .is-enhanced .panel[data-active='false'] {
+    display: none;
+  }
+  .panels {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .panel-detail {
+    color: var(--text-2);
+    font-size: var(--fs-small);
+    margin-bottom: var(--s-2);
+  }
+  .panel ul {
+    list-style: none;
+    padding: 0;
+    display: grid;
+  }
+  .panel li a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+    min-height: 44px;
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: 1px solid var(--divider);
+    font-size: var(--fs-small);
+  }
+  .panel li a .icon {
+    width: 16px;
+    height: 16px;
+    color: var(--accent);
+    flex: none;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .panel li a:hover {
+    color: var(--accent);
+  }
+  .panel li a:hover .icon {
+    transform: translateX(3px);
+  }
+  .panel-all {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: var(--fs-small);
+  }
+  .note {
+    font-size: 0.8125rem;
+    color: var(--text-2);
+  }
+  @media (max-width: 30rem) {
+    .layer-buttons {
+      grid-template-columns: 1fr;
+    }
+    .layer-btn {
+      min-height: 48px;
+      grid-auto-flow: column;
+      justify-content: start;
+      gap: var(--s-3);
+    }
+  }
+</style>

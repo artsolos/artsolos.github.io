@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="480" viewBox="0 0 960 480" role="img" aria-labelledby="title desc">
+  <title id="title">Maxwell wheel measurement procedure</title>
+  <desc id="desc">Conceptual diagram based on the report: a disk and axle descend on two unwinding strings. Dimensions, mass and repeated descent times are measured. Geometry and motion equations supply derived quantities. This is not an apparatus photograph or a measured trajectory.</desc>
+  <rect width="960" height="480" rx="12" fill="#121A24"/>
+  <g font-family="sans-serif" fill="#F2F5F8">
+    <text x="36" y="42" font-size="17" fill="#8BD5FF">PROCEDURE SCHEMATIC · BASED ON REPORT TEXT</text>
+    <text x="36" y="80" font-size="28">Maxwell’s wheel: geometry and timed descent</text>
+    <path d="M200 126H530" stroke="#A5B2C1" stroke-width="7"/>
+    <path d="M270 130V273M470 130V273" stroke="#8BD5FF" stroke-width="3"/>
+    <circle cx="370" cy="273" r="87" fill="#182230" stroke="#8BD5FF" stroke-width="3"/>
+    <path d="M250 273H490" stroke="#F2F5F8" stroke-width="10"/>
+    <circle cx="370" cy="273" r="15" fill="#8BD5FF"/>
+    <circle cx="370" cy="214" r="11" fill="#A5B2C1"/>
+    <circle cx="370" cy="332" r="11" fill="#A5B2C1"/>
+    <path d="M552 170V355M545 346L552 355L559 346" fill="none" stroke="#8BD5FF" stroke-width="3"/>
+    <text x="576" y="267" font-size="19">Descent</text>
+    <text x="36" y="165" font-size="18">Two strings</text>
+    <path d="M152 160H240L264 178" fill="none" stroke="#A5B2C1"/>
+    <text x="36" y="295" font-size="18">Disk and axle</text>
+    <path d="M162 290H236L260 276" fill="none" stroke="#A5B2C1"/>
+    <text x="660" y="154" font-size="19" fill="#8BD5FF">MEASURE</text>
+    <text x="660" y="187" font-size="18">Mass and dimensions</text>
+    <text x="660" y="216" font-size="18">Repeated descent times</text>
+    <text x="660" y="269" font-size="19" fill="#8BD5FF">COMPARE</text>
+    <text x="660" y="302" font-size="18">Baseline wheel</text>
+    <text x="660" y="331" font-size="18">Wheel with brass knobs</text>
+    <path d="M36 395H924" stroke="#2A3848"/>
+    <text x="36" y="428" font-size="17" fill="#A5B2C1">Dimensions and times are readings; acceleration and inertia are calculated.</text>
+    <text x="36" y="457" font-size="16" fill="#A5B2C1">Conceptual layout, not to scale. No new experiment or apparatus design is claimed.</text>
+  </g>
+</svg>

@@ -1,0 +1,58 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import Icon from '../components/Icon.astro';
+import { getProjects, href } from '../lib/site';
+const projects = (await getProjects()).filter((p) => p.data.placement === 'business');
+const accountingProjects = projects.filter((p) => p.data.series?.name === 'ACCT1209');
+const marketingProjects = projects.filter((p) => p.data.series?.name === 'MKTG2209');
+---
+
+<BaseLayout title="Business" description="Business Administration minor coursework in financial analysis and marketing strategy, with original reports and clearly scoped conclusions.">
+  <div class="container page">
+    <header data-entrance-load class="section-head">
+      <p class="eyebrow">Business Administration minor</p>
+      <h1>Business</h1>
+      <p class="lede">Course projects connecting financial analysis, customer needs, and business decisions.</p>
+      <nav class="section-nav" aria-label="Portfolio sections">
+        <a class="btn" href={href('work/')}><Icon name="arrow-left" /> All work</a>
+        <a class="btn" href={href('coursework/')}>Engineering coursework</a>
+      </nav>
+      <nav class="section-nav" aria-label="Business courses">
+        <a class="btn" href={`${href('business/')}#accounting-title`}>Accounting</a>
+        <a class="btn" href={`${href('business/')}#marketing-title`}>Marketing</a>
+      </nav>
+    </header>
+    <section aria-labelledby="accounting-title">
+      <div class="section-head">
+        <p class="eyebrow">ACCT1209 · Spring 2026</p>
+        <h2 id="accounting-title">Financial Reporting and Accounting</h2>
+        <p class="lede">Two related reports form one company-analysis case study, from business and financial-statement review to ratio comparisons and stakeholder conclusions.</p>
+        <p class="review-note">Historical coursework with report downloads, source checks, and visible limits on fiscal-period and ratio comparisons.</p>
+      </div>
+      <div class="business-projects">
+        {accountingProjects.map((project) => <ProjectCard project={project} headingLevel="h3" mediaSizes="(min-width: 48rem) 768px, 100vw" eager />)}
+      </div>
+    </section>
+    <section class="business-course" aria-labelledby="marketing-title">
+      <div class="section-head">
+        <p class="eyebrow">MKTG2209 · April 2026</p>
+        <h2 id="marketing-title">Introduction to Marketing</h2>
+        <p class="lede">A concept sheet and final plan form one individual case study in audience selection, positioning, the marketing mix, and scenario planning.</p>
+        <p class="review-note">EverCrunch is a hypothetical course concept. Product benefits, launch activity, and financial outcomes are proposals rather than measured results.</p>
+      </div>
+      <div class="business-projects">
+        {marketingProjects.map((project) => <ProjectCard project={project} headingLevel="h3" mediaSizes="(min-width: 48rem) 768px, 100vw" />)}
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page { padding-block: var(--s-7) var(--s-9); }
+  h1 { font-size: clamp(2.2rem, 1.6rem + 3vw, 3.75rem); }
+  .section-nav { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-3); }
+  .business-projects { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 48rem; gap: var(--s-5); }
+  .business-course { margin-top: var(--s-8); padding-top: var(--s-7); border-top: 1px solid var(--divider); }
+  .review-note { color: var(--text-2); font-size: var(--fs-small); max-width: var(--measure); }
+</style>

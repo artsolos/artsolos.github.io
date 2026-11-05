@@ -1,0 +1,248 @@
+---
+// Early work archive: coursework from before university, kept for completeness and
+// deliberately separate from the engineering projects.
+import { Picture } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { href } from '../lib/site';
+import certificate from '../assets/projects/archive/hour-of-code-certificate.jpg';
+import maze from '../assets/projects/archive/maze-app.png';
+import camera from '../assets/projects/archive/camera-app-blocks.png';
+import vexBlocks from '../assets/projects/archive/vex-dead-reckoning-blocks.png';
+
+const timeline = [
+  {
+    when: 'December 2020',
+    title: 'Hour of Code: Dance Party',
+    text: 'Chose the Dance Party activity and programmed the characters’ dance moves.',
+    image: { src: certificate, alt: 'Hour of Code certificate of completion made out to Arefin Mahmood.' },
+  },
+  {
+    when: 'January 2021',
+    title: 'Maze escape app (MIT App Inventor)',
+    text: 'A phone app where the player starts in the middle of a maze and has to find the exit.',
+    image: { src: maze, alt: 'Phone screen mock-up showing a square maze with a star marker in the center.' },
+  },
+  {
+    when: 'February 2021',
+    title: 'Camera app (MIT App Inventor)',
+    text: 'An app that takes a photo and saves it to the phone. Built with App Inventor blocks.',
+    image: { src: camera, alt: 'App Inventor blocks for taking a picture, setting a canvas background, and saving the image.' },
+  },
+  {
+    when: 'March 2021',
+    title: 'Self-driving car fundamentals: dead reckoning (VEXcode VR)',
+    text: 'Programmed a virtual robot car to follow a planned path using loops of drive and turn commands.',
+    image: { src: vexBlocks, alt: 'VEXcode block program with a loop of turn and drive-forward commands.' },
+  },
+  {
+    when: 'April 2021',
+    title: 'Grid path: start at 23, finish at 56 (VEXcode VR)',
+    text: 'Drove a virtual car across a numbered grid using only loops, with the distance growing by one block every two turns.',
+  },
+  {
+    when: 'May 2021',
+    title: 'Python basics',
+    text: 'Learned how Python handles data, values, and types, and how a program produces the values you ask for.',
+  },
+];
+
+const csClass = [
+  { title: 'Sci-fi name generator', text: 'Builds a science-fiction name from your name, your parents’ names, and where you live.' },
+  {
+    title: 'Zombie apocalypse supply calculator',
+    text: 'Estimates the food and water a person would need based on how long the apocalypse lasts, their age, and their job.',
+  },
+  {
+    title: 'Translator app (iPhone and Android)',
+    text: 'Translates text and reads the result aloud, to help people communicate across languages.',
+    link: { label: 'Open the app on Thunkable', url: 'https://x.thunkable.com/copy/decfa6455315039c5a2187b80a2536a2' },
+  },
+];
+---
+
+<BaseLayout title="Early work" description="Earlier coursework kept for the record: introductory programming, app projects, VEX VR exercises, and ninth-grade history projects.">
+  <div class="container page">
+    <a class="back" href={href()}>
+      <Icon name="arrow-left" />
+      Back to home
+    </a>
+    <header data-entrance-load class="section-head">
+      <p class="eyebrow">Archive</p>
+      <h1>Early work</h1>
+      <p class="lede">
+        Coursework from before university, kept here for the record. My engineering projects are on the
+        <a href={href('work/')}>Work collection</a>.
+      </p>
+    </header>
+
+    <section aria-labelledby="cs-title" class="block">
+      <h2 id="cs-title">Computer science class, 2020–2021</h2>
+      <ol class="timeline">
+        {
+          timeline.map((t) => (
+            <li>
+              <p class="when">{t.when}</p>
+              <div class="entry">
+                <h3>{t.title}</h3>
+                <p>{t.text}</p>
+                {t.image && (
+                  <Picture
+                    src={t.image.src}
+                    alt={t.image.alt}
+                    formats={['avif']}
+        fallbackFormat="webp"
+                    widths={[320, 560].filter((w) => w <= t.image.src.width)}
+                    sizes="(min-width: 48rem) 28rem, 100vw"
+                    loading="lazy"
+                    class="shot"
+                  />
+                )}
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+
+      <h3 class="sub">Other programs from the class</h3>
+      <p>Original records: <a href="https://sites.google.com/view/arfinportfolio/reflection">monthly reflections</a> and <a href="https://sites.google.com/view/arfinportfolio/computer-science-class">computer science projects</a>.</p>
+      <ul class="cards">
+        {
+          csClass.map((c) => (
+            <li>
+              <h4>{c.title}</h4>
+              <p>{c.text}</p>
+              {c.link && (
+                <a href={c.link.url} rel="noopener">
+                  {c.link.label}
+                  <span class="visually-hidden"> (external site)</span>
+                </a>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section aria-labelledby="hist-title" class="block">
+      <h2 id="hist-title">History projects, ninth grade</h2>
+      <div class="prose">
+        <p>
+          An end-of-unit presentation on globalization in the Middle Ages. It covered the Mongols, the Crusades, the Silk
+          Road, and West Africa, and how each one increased contact between regions. A second project looked at the
+          Renaissance and its influence on today's society.
+        </p>
+        <p><a href="https://sites.google.com/view/arfinportfolio/history-projects">Original history projects and supporting presentations</a></p>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    padding-block: var(--s-6) var(--s-9);
+  }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: 44px;
+    margin-bottom: var(--s-5);
+    color: var(--text-2);
+    text-decoration: none;
+    font-size: var(--fs-small);
+  }
+  .back :global(.icon) {
+    width: 18px;
+    height: 18px;
+  }
+  h1 {
+    font-size: clamp(2.2rem, 1.6rem + 3vw, 3.5rem);
+  }
+  .block + .block {
+    margin-top: var(--s-9);
+    padding-top: var(--s-7);
+    border-top: 1px solid var(--divider);
+  }
+  .block h2 {
+    font-size: clamp(1.5rem, 1.3rem + 1vw, 2rem);
+    margin-bottom: var(--s-6);
+  }
+  .timeline {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--s-6);
+    max-width: 52rem;
+  }
+  .timeline li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-2) var(--s-6);
+  }
+  @media (min-width: 48rem) {
+    .timeline li {
+      grid-template-columns: 10rem minmax(0, 1fr);
+    }
+  }
+  .when {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    color: var(--accent);
+    padding-top: 0.2em;
+  }
+  .entry {
+    display: grid;
+    gap: var(--s-2);
+    padding-bottom: var(--s-6);
+    border-bottom: 1px solid var(--divider);
+  }
+  .entry h3 {
+    font-size: 1.15rem;
+  }
+  .entry p {
+    color: var(--text-2);
+    max-width: var(--measure);
+  }
+  .entry :global(.shot) {
+    margin-top: var(--s-3);
+    width: 100%;
+    max-width: 28rem;
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    background: #fff;
+  }
+  .sub {
+    font-size: 1.15rem;
+    margin: var(--s-8) 0 var(--s-4);
+  }
+  .cards {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: var(--s-4);
+  }
+  .cards li {
+    display: grid;
+    gap: var(--s-2);
+    align-content: start;
+    padding: var(--s-5);
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius);
+  }
+  .cards h4 {
+    font-size: 1.05rem;
+  }
+  .cards p {
+    color: var(--text-2);
+    font-size: var(--fs-small);
+  }
+  .cards a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: var(--fs-small);
+  }
+</style>

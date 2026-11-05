@@ -1,0 +1,415 @@
+---
+// Case study page, generated for every published project in the content collection.
+import forgeButtons from '../../assets/projects/forge-of-hephaestus/button-test.jpg';
+import forgeLaptop from '../../assets/projects/forge-of-hephaestus/forge-with-laptop.jpg';
+import { Picture } from 'astro:assets';
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import FigureGallery from '../../components/FigureGallery.astro';
+import VideoOnRequest from '../../components/VideoOnRequest.astro';
+import LinkList from '../../components/LinkList.astro';
+import { diagrams } from '../../components/diagrams';
+import { categories, settingLabels, statusLabels } from '../../data/categories';
+import { getProjects, href, type Project } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project) => ({ params: { slug: project.id }, props: { project, projects } }));
+}
+
+interface Props {
+  project: Project;
+  projects: Project[];
+}
+const { project, projects } = Astro.props;
+const d = project.data;
+const indexPath = d.placement === 'business' ? 'business/' : d.placement === 'coursework' ? 'coursework/' : 'work/';
+const indexLabel = d.placement === 'business' ? 'Business' : d.placement === 'coursework' ? 'Engineering coursework' : 'All work';
+const { Content, headings } = await render(project);
+
+// Related: explicit references first, then projects sharing a category.
+const explicit = d.related
+  .map((r) => projects.find((p) => p.id === r.id))
+  .filter((p): p is Project => Boolean(p));
+const byCategory = projects.filter(
+  (p) => p.id !== project.id && !explicit.includes(p) && p.data.categories.some((c) => d.categories.includes(c))
+);
+const related = [...explicit, ...byCategory].slice(0, 3);
+
+const facts = [
+  { term: 'My role', value: d.role },
+  { term: 'Context', value: d.context },
+  d.team && { term: 'Team', value: d.team },
+  d.period && { term: 'When', value: d.period },
+  { term: 'Type', value: `${settingLabels[d.setting]} · ${statusLabels[d.status]}` },
+].filter(Boolean) as { term: string; value: string }[];
+
+const hasLinks = d.reports.length + d.repositories.length + d.demos.length + d.downloads.length > 0;
+---
+
+<BaseLayout title={d.title} description={d.description ?? d.summary} type="article">
+  <article class="case">
+    <header data-entrance-load class="container head">
+      <a class="back" href={href(indexPath)}>
+        <Icon name="arrow-left" />
+        {indexLabel}
+      </a>
+      <p class="eyebrow">{d.series ? `${d.series.name} · ${d.series.part}` : settingLabels[d.setting]}</p>
+      <h1>{d.title}</h1>
+      <p class="lede summary">{d.summary}</p>
+      <ul class="tag-list cats" aria-label="Categories">
+        {
+          d.categories.map((c) => (
+            <li>
+              <a class="tag tag-accent" href={`${href('work/')}?category=${c}`}>
+                {categories[c].label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </header>
+
+    <div class="container overview">
+      <section class="contribution-summary" aria-labelledby="contribution-title"><h2 id="contribution-title">My contribution</h2><p>{d.contribution}</p></section>
+      <div class="inline-links"><a href="#case-content">Read the case ↓</a>{hasLinks && <a href="#links-title">Reports and downloads ↓</a>}</div>
+      <dl class="facts">
+        {
+          facts.map((f) => (
+            <div>
+              <dt>{f.term}</dt>
+              <dd>{f.value}</dd>
+            </div>
+          ))
+        }
+        {
+          d.tools.length > 0 && (
+            <div class="tools">
+              <dt>Tools</dt>
+              <dd>
+                <ul class="tag-list">
+                  {d.tools.map((t) => (
+                    <li class="tag">{t}</li>
+                  ))}
+                </ul>
+              </dd>
+            </div>
+          )
+        }
+      </dl>
+      {
+        d.cover ? (
+          <figure class="hero-media">
+            {d.cover.format === 'svg' ? (
+              <img src={d.cover.src} alt={d.coverAlt ?? ''} width={d.cover.width} height={d.cover.height} loading="eager" fetchpriority="high" />
+            ) : (
+            <Picture
+              src={d.cover}
+              alt={d.coverAlt ?? ''}
+              formats={['avif']}
+              fallbackFormat="webp"
+              widths={[640, 960, 1280, 1600].filter((w) => w <= d.cover!.width)}
+              sizes="(min-width: 64rem) 60vw, 100vw"
+              loading="eager"
+              fetchpriority="high"
+            />
+            )}
+          </figure>
+        ) : (
+          d.diagrams[0] &&
+          (() => {
+            const D = diagrams[d.diagrams[0]];
+            return (
+              <figure class="hero-media diagram-fig">
+                <D.component />
+                <figcaption>{D.caption}</figcaption>
+              </figure>
+            );
+          })()
+        )
+      }
+    </div>
+
+    <div class="container body">
+      <nav class="contents" aria-label="In this project"><p class="eyebrow">In this project</p>{headings.filter(h=>h.depth===2).map(h=><a href={`#${h.slug}`}>{h.text}</a>)}{hasLinks && <a href="#links-title">Reports and downloads</a>}{(d.figures.length>0 || d.videos.length>0 || d.diagrams.length>(d.cover?0:1)) && <a href="#evidence-title">Visual evidence</a>}</nav>
+      <div class="prose" id="case-content">
+        <Content />
+      </div>
+
+      {
+        hasLinks && (
+          <aside class="links-panel" aria-labelledby="links-title">
+            <h2 id="links-title" class="eyebrow">
+              Reports and links
+            </h2>
+            <LinkList items={d.reports} kind="report" />
+            <LinkList items={d.repositories} kind="repo" />
+            <LinkList items={d.demos} kind="demo" />
+            <LinkList items={d.downloads.map((file) => ({ label: file.label, url: href(file.path), note: file.note }))} kind="download" />
+          </aside>
+        )
+      }
+    </div>
+
+    {
+      (d.figures.length > 0 || d.videos.length > 0 || d.diagrams.length > (d.cover ? 0 : 1)) && (
+        <section class="container evidence" aria-labelledby="evidence-title">
+          <div class="section-head">
+            <p class="eyebrow">Evidence</p>
+            <h2 id="evidence-title">{d.placement === 'business' ? 'Tables and charts' : 'Figures, photos, and video'}</h2>
+          </div>
+          {d.videos.length > 0 && (
+            <div class="videos">
+              {d.videos.map((v) => (
+                <VideoOnRequest {...v} />
+              ))}
+            </div>
+          )}
+          {d.diagrams.slice(d.cover ? 0 : 1).map((id) => {
+            const D = diagrams[id];
+            return (
+              <figure class="diagram-fig reveal">
+                <D.component />
+                <figcaption>{D.caption}</figcaption>
+              </figure>
+            );
+          })}
+          {d.figures.length > 0 && <FigureGallery figures={d.figures} />}
+          {project.id === 'forge-of-hephaestus' && <FigureGallery figures={[
+            {src:forgeButtons,alt:'Pushbutton wiring beside a microcontroller and breadboard',caption:'Existing project photo: a pushbutton and the wired microcontroller on the workbench.',group:'Additional build photos'},
+            {src:forgeLaptop,alt:'The Forge enclosure beside a laptop with the project interface',caption:'Existing project photo: the enclosure, illuminated front and laptop interface together on the workbench.',group:'Additional build photos'}
+          ]} />}
+        </section>
+      )
+    }
+
+    {
+      d.sources.length > 0 && (
+        <section class="container sources" aria-labelledby="sources-title">
+          <h2 id="sources-title" class="eyebrow">
+            Source material
+          </h2>
+          <ul>
+            {d.sources.map((s) => (
+              <li>
+                <a href={s.url} rel="noopener">
+                  {s.label}
+                </a>
+                {s.note && <span class="muted"> · {s.note}</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </article>
+
+  {
+    related.length > 0 && (
+      <section class="section related" aria-labelledby="related-title">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow">Related</p>
+            <h2 id="related-title">Related projects</h2>
+          </div>
+          <div class="related-grid">
+            {related.map((p, i) => (
+              <ProjectCard project={p} variant="compact" index={i} />
+            ))}
+          </div>
+          <p class="all">
+            <a class="btn" href={href(indexPath)}>
+              <Icon name="arrow-left" />
+              Back to {indexLabel.toLowerCase()}
+            </a>
+          </p>
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .head {
+    display: grid;
+    gap: var(--s-4);
+    padding-top: var(--s-6);
+    padding-bottom: var(--s-7);
+  }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    justify-self: start;
+    min-height: 44px;
+    color: var(--text-2);
+    text-decoration: none;
+    font-size: var(--fs-small);
+    margin-bottom: var(--s-4);
+  }
+  .back:hover {
+    color: var(--text);
+  }
+  .back :global(.icon) {
+    width: 18px;
+    height: 18px;
+  }
+  h1 {
+    font-size: clamp(2.1rem, 1.5rem + 3vw, 3.75rem);
+    max-width: 22ch;
+  }
+  .summary {
+    font-size: clamp(1.1rem, 1rem + 0.4vw, 1.3rem);
+    color: var(--text);
+    opacity: 0.92;
+  }
+  .cats a {
+    text-decoration: none;
+    min-height: 32px;
+  }
+  .cats a:hover {
+    border-color: var(--accent);
+  }
+
+  .overview {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-6);
+    padding-bottom: var(--s-8);
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: var(--s-4) var(--s-6);
+    padding: var(--s-5);
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius);
+    align-content: start;
+  }
+  .facts .tools {
+    grid-column: 1 / -1;
+  }
+  dt {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: var(--s-1);
+  }
+  dd {
+    font-size: var(--fs-small);
+  }
+  .hero-media {
+    border: 1px solid var(--divider);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .hero-media :global(img) {
+    width: 100%;
+    max-height: 38rem;
+    object-fit: contain;
+  }
+  @media (min-width: 64rem) {
+    .overview {
+      grid-template-columns: minmax(18rem, 1fr) 1.7fr;
+      align-items: start;
+    }
+    .facts {
+      grid-template-columns: 1fr;
+      position: sticky;
+      top: calc(var(--header-h) + var(--s-4));
+    }
+  }
+  .diagram-fig {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .diagram-fig :global(svg) {
+    border-radius: var(--radius-sm);
+  }
+  .diagram-fig figcaption,
+  .hero-media figcaption {
+    font-size: var(--fs-small);
+    color: var(--text-2);
+    padding: 0 var(--s-4) var(--s-4);
+  }
+  .evidence > .diagram-fig {
+    max-width: 50rem;
+    margin-bottom: var(--s-7);
+    padding: 0;
+  }
+  .evidence > .diagram-fig figcaption {
+    padding: 0;
+  }
+
+  .body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-7);
+    padding-bottom: var(--s-8);
+  }
+  @media (min-width: 64rem) {
+    .body {
+      grid-template-columns: minmax(0, 1fr) 20rem;
+      align-items: start;
+      gap: var(--s-8);
+    }
+    .links-panel {
+      position: sticky;
+      top: calc(var(--header-h) + var(--s-4));
+    }
+  }
+  .links-panel {
+    display: grid;
+    gap: var(--s-3);
+    padding: var(--s-5);
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius);
+  }
+  .links-panel h2 {
+    font-size: var(--fs-label);
+  }
+
+  .evidence {
+    padding-bottom: var(--s-8);
+  }
+  .videos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: var(--s-5);
+    margin-bottom: var(--s-7);
+  }
+
+  .sources {
+    padding-bottom: var(--s-8);
+    font-size: var(--fs-small);
+  }
+  .sources h2 {
+    font-size: var(--fs-label);
+    margin-bottom: var(--s-3);
+  }
+  .sources ul {
+    padding-left: 1.1em;
+    color: var(--text-2);
+    display: grid;
+    gap: var(--s-1);
+  }
+  .sources a {
+    display: inline-block;
+    padding-block: var(--s-2);
+  }
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: var(--s-4);
+  }
+  .all {
+    margin-top: var(--s-6);
+  }
+</style>

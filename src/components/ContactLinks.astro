@@ -1,0 +1,79 @@
+---
+// Contact options built from profile data; any missing value is simply omitted.
+import Icon from './Icon.astro';
+import { profile } from '../data/profile';
+import { resumeHref } from '../lib/site';
+
+const resume = resumeHref();
+const items = [
+  profile.email && { icon: 'mail', label: 'College email', value: profile.email, url: `mailto:${profile.email}` },
+  profile.personalEmail && { icon: 'mail', label: 'Personal email', value: profile.personalEmail, url: `mailto:${profile.personalEmail}` },
+  profile.linkedin && { icon: 'linkedin', label: 'LinkedIn', value: 'Profile', url: profile.linkedin },
+  profile.github && { icon: 'github', label: 'GitHub', value: 'Repositories', url: profile.github },
+  resume && { icon: 'file', label: 'Resume', value: 'PDF', url: resume },
+].filter(Boolean) as { icon: 'mail' | 'linkedin' | 'github' | 'file'; label: string; value: string; url: string }[];
+---
+
+<ul class="contact">
+  {
+    items.map((i, n) => (
+      <li class="reveal" style={`--i:${n}`}>
+        <a href={i.url}>
+          <Icon name={i.icon} />
+          <span class="text">
+            <span class="label">{i.label}</span>
+            <span class="value">{i.value}</span>
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .contact {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+    gap: var(--s-3);
+  }
+  a {
+    display: flex;
+    align-items: center;
+    gap: var(--s-4);
+    min-height: 64px;
+    padding: var(--s-4) var(--s-5);
+    background: var(--surface);
+    border: 1px solid var(--control);
+    border-radius: var(--radius);
+    color: var(--text);
+    text-decoration: none;
+    transition:
+      border-color var(--dur-fast) ease,
+      background-color var(--dur-fast) ease;
+  }
+  a:hover {
+    border-color: var(--accent);
+    background: var(--raised);
+  }
+  a :global(.icon) {
+    color: var(--accent);
+    flex: none;
+  }
+  .text {
+    display: grid;
+    min-width: 0;
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+  .value {
+    font-weight: 500;
+    overflow-wrap: anywhere;
+  }
+</style>

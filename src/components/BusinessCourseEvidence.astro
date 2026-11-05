@@ -1,0 +1,46 @@
+---
+
+import ProjectCard from './ProjectCard.astro';
+
+import { getProjects } from '../lib/site';
+const projects = (await getProjects()).filter((p) => p.data.placement === 'business');
+const accountingProjects = projects.filter((p) => p.data.series?.name === 'ACCT1209');
+const marketingProjects = projects.filter((p) => p.data.series?.name === 'MKTG2209');
+
+interface Props { only: string }
+const { only }=Astro.props;
+---
+{only === "financial-reporting" && (
+    <section aria-labelledby="accounting-title">
+      <div class="section-head">
+        <p class="eyebrow">ACCT1209 · Spring 2026</p>
+        <h2 id="accounting-title">Financial Reporting and Accounting</h2>
+        <p class="lede">Two related reports form one company-analysis case study, from business and financial-statement review to ratio comparisons and stakeholder conclusions.</p>
+        <p class="review-note">Historical coursework with report downloads, source checks, and visible limits on fiscal-period and ratio comparisons.</p>
+      </div>
+      <div class="business-projects">
+        {accountingProjects.map((project) => <ProjectCard project={project} headingLevel="h3" mediaSizes="(min-width: 48rem) 768px, 100vw" eager />)}
+      </div>
+    </section>
+)}
+{only === "marketing" && (
+    <section class="business-course" aria-labelledby="marketing-title">
+      <div class="section-head">
+        <p class="eyebrow">MKTG2209 · April 2026</p>
+        <h2 id="marketing-title">Introduction to Marketing</h2>
+        <p class="lede">A concept sheet and final plan form one individual case study in audience selection, positioning, the marketing mix, and scenario planning.</p>
+        <p class="review-note">EverCrunch is a hypothetical course concept. Product benefits, launch activity, and financial outcomes are proposals rather than measured results.</p>
+      </div>
+      <div class="business-projects">
+        {marketingProjects.map((project) => <ProjectCard project={project} headingLevel="h3" mediaSizes="(min-width: 48rem) 768px, 100vw" />)}
+      </div>
+    </section>
+)}
+<style>
+  .page { padding-block: var(--s-7) var(--s-9); }
+  h1 { font-size: clamp(2.2rem, 1.6rem + 3vw, 3.75rem); }
+  .section-nav { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-top: var(--s-3); }
+  .business-projects { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 48rem; gap: var(--s-5); }
+  .business-course { margin-top: var(--s-8); padding-top: var(--s-7); border-top: 1px solid var(--divider); }
+  .review-note { color: var(--text-2); font-size: var(--fs-small); max-width: var(--measure); }
+</style>

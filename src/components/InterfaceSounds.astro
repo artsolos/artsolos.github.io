@@ -1,0 +1,47 @@
+---
+import { href } from '../lib/site';
+---
+<aside class="sound-dock" aria-label="Interface sound controls" hidden transition:persist="site-audio">
+  <div class="sound-settings" id="sound-settings" hidden>
+    <label class="sound-volume" for="sound-volume">Volume <output id="sound-volume-value">25%</output>
+      <input type="range" id="sound-volume" min="0" max="100" value="25" step="1" />
+    </label>
+    <label><input type="checkbox" data-sound-option="click" checked /> Click sounds</label>
+    <label><input type="checkbox" data-sound-option="transition" checked /> Navigation sounds</label>
+  </div>
+  <div class="sound-bar">
+    <span class="sound-status" role="status" aria-live="polite">Sound starts off</span>
+    <div class="sound-buttons">
+      <button type="button" data-sound-toggle aria-pressed="false">Sound off</button>
+      <button type="button" data-sound-settings aria-label="Sound settings" aria-expanded="false" aria-controls="sound-settings">
+        <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M4 3v14M10 3v14M16 3v14M1 7h6M7 13h6M13 6h6" /></svg>
+      </button>
+    </div>
+  </div>
+  <audio data-sound="click" src={href('audio/interface/click.mp3')} preload="none"></audio>
+  <audio data-sound="transition" src={href('audio/interface/transition.mp3')} preload="none"></audio>
+</aside>
+<script>
+  import { initInterfaceSounds } from '../scripts/interface-sounds';
+  initInterfaceSounds();
+</script>
+<style is:global>
+  body.has-interface-sounds{padding-bottom:var(--sound-dock-height,60px)}
+  .sound-dock{position:fixed;bottom:0;left:0;right:0;z-index:60;background:var(--bg);border-top:1px solid var(--divider);padding-bottom:env(safe-area-inset-bottom);color:var(--text)}
+  .sound-dock[hidden],.sound-settings[hidden]{display:none}
+  .sound-bar{min-height:60px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px var(--gutter)}
+  .sound-status{font:10px/1.5 'IBM Plex Mono',monospace;color:var(--text-2)}
+  .sound-buttons{display:flex;gap:6px;flex-shrink:0}
+  .sound-buttons button{min-height:44px;min-width:44px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--divider);background:transparent;color:var(--text);font:12px 'IBM Plex Mono',monospace;cursor:pointer;transition:color 180ms,background-color 180ms,border-color 180ms}
+  .sound-buttons button:hover,.sound-buttons button[aria-pressed=true],.sound-buttons button[aria-expanded=true]{color:var(--accent);background:var(--surface);border-color:var(--control)}
+  .sound-dock :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+  .sound-settings{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:12px 26px;background:var(--surface);padding:16px var(--gutter);border-bottom:1px solid var(--divider)}
+  .sound-settings label{font-size:12px;min-height:44px;display:flex;align-items:center;gap:9px;cursor:pointer}
+  .sound-settings .sound-volume{display:grid;grid-template-columns:1fr auto;gap:0;width:200px}
+  .sound-volume output{font:11px 'IBM Plex Mono',monospace;color:var(--accent)}
+  .sound-volume input{grid-column:1/-1;width:100%;height:36px;margin:0}
+  .sound-settings input{accent-color:var(--accent)}
+  .sound-settings input[type=checkbox]{width:18px;height:18px}
+  @media(max-width:40rem){.sound-settings{gap:0 18px;justify-content:flex-start}.sound-settings .sound-volume{width:100%}.sound-settings label{font-size:11px}.sound-status{max-width:45%}}
+  @media(prefers-reduced-motion:reduce){.sound-buttons button{transition:none}}
+</style>

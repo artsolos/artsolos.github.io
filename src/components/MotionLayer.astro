@@ -1,0 +1,9 @@
+<div class="motion-cursor" aria-hidden="true" transition:persist="site-cursor"><span class="motion-dot"></span><span class="motion-ring"><span>View</span></span></div>
+<div class="motion-wipe" aria-hidden="true" transition:persist="site-wipe">
+  <div class="motion-columns">{Array.from({length:5},()=> <span></span>)}</div>
+  <div class="motion-caption"><span class="motion-next">(Next)</span><strong data-motion-title></strong><span class="motion-rule"></span></div>
+</div>
+<script>
+  import { initMotion } from '../scripts/site-motion';
+  initMotion();
+</script>

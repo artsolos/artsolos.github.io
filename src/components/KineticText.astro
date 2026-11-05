@@ -1,0 +1,24 @@
+---
+interface Props {text:string;align?:'start'|'end';radius?:number}
+const {text,align='start',radius=420}=Astro.props;
+---
+<span class="kinetic-line" data-kinetic-line data-align={align} data-radius={radius}><span class="visually-hidden">{text}</span><span class="kinetic-text" aria-hidden="true">{text}</span></span>
+<script>
+ import {initKineticText} from '../scripts/kinetic-text';
+ import {initNameDepth} from '../scripts/name-depth';
+ import {initNameParallax} from '../scripts/name-parallax';
+ import '../styles/name-depth.css';
+ import {onPage} from '../lib/page-lifecycle';
+ onPage(() => {
+   const stops=[initKineticText(),initNameDepth(),initNameParallax()];
+   return () => stops.forEach(stop=>stop?.());
+ });
+</script>
+<style is:global>
+ .kinetic-line{display:block;width:100%;position:relative;white-space:nowrap}
+ .kinetic-line[data-align=end]{text-align:right}
+ .home-name .kinetic-line .kinetic-text,.kinetic-line .kinetic-text{display:inline-block;position:relative;white-space:pre;vertical-align:top;text-align:left}
+ .home-name .kinetic-line .kinetic-letter,.kinetic-line .kinetic-letter{display:block;position:absolute;top:0;transform-origin:left center;white-space:pre;text-align:left}
+ .kinetic-line .visually-hidden{position:absolute!important}
+ @media(prefers-reduced-motion:reduce),(hover:none),(pointer:coarse){.kinetic-letter{transform:none!important}}
+</style>

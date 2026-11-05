@@ -1,0 +1,40 @@
+:root{--motion-accent:#7fa8ff;--motion-hover:300ms;--motion-slide:600ms;--motion-ease:cubic-bezier(.16,1,.3,1)}
+.motion-cursor,.motion-wipe{pointer-events:none!important;position:fixed;inset:0}
+.motion-cursor{z-index:9800;visibility:hidden}
+.motion-dot,.motion-ring{position:absolute;top:0;left:0;will-change:transform;border-radius:50%}
+.motion-dot{width:6px;height:6px;background:var(--motion-accent);z-index:2;margin:-3px}
+.motion-ring{width:88px;height:88px;border:1px solid rgb(237 234 228 / .5);display:grid;place-items:center;transform-origin:center;transition:background 250ms ease,border-color 250ms ease;color:#111010}
+.motion-ring>span{font:400 11px var(--font-mono);text-transform:uppercase;opacity:0}
+.motion-cursor.on-light .motion-ring{border-color:#111010}
+.motion-cursor.is-view .motion-ring{background:var(--motion-accent);border-color:transparent}
+.motion-cursor.is-view .motion-ring>span{opacity:1}
+html.cursor-active .motion-cursor{visibility:visible}
+html.cursor-active,html.cursor-active *{cursor:none!important}
+.motion-wipe{z-index:9000;visibility:hidden;overflow:hidden}
+.motion-columns{position:absolute;inset:0;display:flex}
+.motion-columns>span{width:calc(20% + 1px);flex-shrink:0;height:101%;background:var(--motion-accent);transform:translateY(101%);margin-right:-1px}
+.motion-caption{position:absolute;left:4vw;right:4vw;bottom:6vh;color:#111010;opacity:0}
+.motion-next{font:12px var(--font-mono);display:block;margin-bottom:16px}
+.motion-caption strong{display:block;font-size:clamp(48px,14vw,210px);line-height:.95;letter-spacing:-.065em;text-transform:uppercase;overflow-wrap:anywhere}
+.motion-caption.is-long strong{font-size:clamp(36px,7vw,110px);line-height:1.05}
+.motion-rule{display:block;height:2px;background:currentColor;margin-top:24px}
+.motion-wipe.is-active{visibility:visible}
+/* The existing live wipe owns the transition; no browser snapshot fade. */
+::view-transition-old(root),::view-transition-new(root){animation:none!important;mix-blend-mode:normal}
+body[data-stage="layout"] .site-header .nav-list a:is(:hover,:focus-visible){color:var(--motion-accent);background:transparent;transition:none}
+body[data-stage="layout"] .site-header .nav-list li:last-child a:is(:hover,:focus-visible){background:#edeae4;color:#111010}
+.subject-filters button:is(:hover,:focus-visible){color:var(--motion-accent)}
+.view-switch button:not([aria-pressed=true]):is(:hover,:focus-visible){color:var(--motion-accent)}
+.preview-link h2{transition:color var(--motion-hover) ease,translate var(--motion-slide) var(--motion-ease)}
+.preview-link:is(:hover,:focus-visible) h2{color:var(--motion-accent)}
+@media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+  .project-preview:not(.selected) .preview-link:hover h2{translate:12px 0}
+}
+@media(prefers-reduced-motion:reduce),(hover:none),(pointer:coarse){
+  .motion-cursor{display:none!important}
+  html.cursor-active,html.cursor-active *{cursor:revert!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .motion-wipe{display:none!important}
+  .preview-link h2{transition:none;translate:none!important}
+}

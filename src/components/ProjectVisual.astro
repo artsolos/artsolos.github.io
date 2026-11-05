@@ -1,0 +1,94 @@
+---
+// The visual for a project: its cover photo/figure, else its first SVG diagram,
+// else a restrained empty-media panel. Never substitutes stock or generated imagery.
+import { Picture } from 'astro:assets';
+import type { Project } from '../lib/site';
+import { diagrams } from './diagrams';
+
+interface Props {
+  project: Project;
+  sizes: string;
+  eager?: boolean;
+}
+const { project, sizes, eager = false } = Astro.props;
+const { cover, coverAlt, coverFit, diagrams: ids, title } = project.data;
+const technical = !['forge-of-hephaestus','goldberg-machine','architectural-chess-set','arduino-joystick-lcd'].includes(project.id);
+const Diagram = !cover && ids[0] ? diagrams[ids[0]].component : undefined;
+---
+
+<div class:list={['visual', { 'is-diagram': Diagram, 'is-vector': cover?.format === 'svg', 'is-contained': coverFit === 'contain' || technical, 'is-empty': !cover && !Diagram }]}>
+  {
+    cover?.format === 'svg' ? (
+      <img src={cover.src} alt={coverAlt ?? ''} width={cover.width} height={cover.height}
+        loading={eager ? 'eager' : 'lazy'} fetchpriority={eager ? 'high' : undefined} decoding="async" />
+    ) : cover ? (
+      <Picture
+        src={cover}
+        alt={coverAlt ?? ''}
+        formats={['avif']}
+        fallbackFormat="webp"
+        widths={[480, 720, 960, 1280].filter((w) => w <= cover.width)}
+        sizes={sizes}
+        loading={eager ? 'eager' : 'lazy'}
+        fetchpriority={eager ? 'high' : undefined}
+        decoding="async"
+      />
+    ) : Diagram ? (
+      <Diagram />
+    ) : (
+      <div class="empty" role="img" aria-label={`No photo available for ${title}`}>
+        <span>No photo yet</span>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .visual {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface);
+    aspect-ratio: 16 / 10;
+  }
+  .visual :global(picture),
+  .visual :global(img) {
+    width: 100%;
+    height: 100%;
+  }
+  .visual :global(img) {
+    object-fit: cover;
+    transition: transform 600ms var(--ease-out);
+  }
+  .is-diagram {
+    display: grid;
+    place-items: center;
+    padding: var(--s-4);
+  }
+  .is-vector :global(img), .is-contained :global(img) {
+    object-fit: contain;
+  }
+  .is-diagram :global(svg) {
+    max-height: 100%;
+    width: auto;
+    max-width: 100%;
+  }
+  .empty {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    background-image:
+      linear-gradient(var(--divider) 1px, transparent 1px),
+      linear-gradient(90deg, var(--divider) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: center;
+  }
+  .empty span {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    color: var(--text-2);
+    background: var(--bg);
+    padding: var(--s-1) var(--s-3);
+    border-radius: 4px;
+  }
+</style>

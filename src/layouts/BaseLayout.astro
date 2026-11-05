@@ -1,0 +1,92 @@
+---
+import '@fontsource/space-grotesk/latin-400.css';
+import '@fontsource/space-grotesk/latin-500.css';
+import '@fontsource/space-grotesk/latin-600.css';
+import '@fontsource/space-grotesk/latin-700.css';
+import '@fontsource/ibm-plex-mono/latin-400.css';
+import '@fontsource/ibm-plex-mono/latin-500.css';
+import '../styles/global.css';
+import '../styles/editorial.css';
+import '../styles/motion.css';
+import '../styles/entrances.css';
+import MotionLayer from '../components/MotionLayer.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import InterfaceSounds from '../components/InterfaceSounds.astro';
+import { ClientRouter } from 'astro:transitions';
+import { profile } from '../data/profile';
+import { href } from '../lib/site';
+
+interface Props {
+  title?: string;
+  description: string;
+  image?: string;
+  type?: 'website' | 'article';
+  noindex?: boolean;
+}
+const { title, description, image = 'og-image.png', type = 'website', noindex = false } = Astro.props;
+const fullTitle = title ? `${title} · ${profile.name}` : `${profile.name} · ${profile.identity}`;
+// Canonical and absolute social URLs only exist once the publishing address (site) is known.
+const canonical = Astro.site && !noindex ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+const ogImage = Astro.site ? new URL(href(image), Astro.site).href : undefined;
+---
+
+<!doctype html>
+<html lang="en" transition:animate="none">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <ClientRouter fallback="swap" />
+    <script is:inline>
+      // Bounded progressive enhancement; failed/blocked scripts leave readable content.
+      try {
+        if(!location.hash && performance.getEntriesByType('navigation')[0]?.type!=='back_forward' && !matchMedia('(prefers-reduced-motion: reduce)').matches){
+          document.documentElement.setAttribute('data-entrance-armed','');
+          setTimeout(()=>document.documentElement.removeAttribute('data-entrance-armed'),document.documentElement.hasAttribute('data-motion-arriving')?4200:1200);
+        }
+      } catch {}
+    </script>
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0b0f14" />
+    <link rel="icon" href={href('favicon.svg')} type="image/svg+xml" />
+    <link rel="icon" href={href('favicon.png')} type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href={href('apple-touch-icon.png')} />
+    {Astro.site && <link rel="sitemap" href={href('sitemap-index.xml')} />}
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content={profile.name} />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {ogImage && <meta property="og:image:width" content="1200" />}
+    {ogImage && <meta property="og:image:height" content="630" />}
+    <meta name="twitter:card" content="summary_large_image" />
+
+  </head>
+  <body data-stage="layout">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <SiteHeader />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter />
+    <InterfaceSounds />
+    <MotionLayer />
+    <script>
+      import {initEntrances} from '../scripts/entrances';
+      import {onPage} from '../lib/page-lifecycle';
+      onPage(() => initEntrances());
+    </script>
+
+  </body>
+</html>
+
+<style>
+  main:focus {
+    outline: none;
+  }
+</style>

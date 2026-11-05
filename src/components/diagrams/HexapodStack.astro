@@ -1,0 +1,93 @@
+---
+const uid = 'hx' + Math.random().toString(36).slice(2, 8);
+// Software stack of the Spider hexapod control program, drawn from the Lab 9
+// report's description of Main.cpp, Spider, SpiderLeg, ServoMotor, and MMap.
+// The highlighted blocks mark the files I changed.
+interface Props {
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+const rows = [
+  { name: 'Main.cpp', note: 'Command menu: f / b / l / r / s', changed: true },
+  { name: 'Spider', note: 'Init · Standup · MoveForward · MoveBackward · LeftTurn · RightTurn', changed: true },
+  { name: 'SpiderLeg × 6', note: 'Hip · knee · ankle joint targets', changed: false },
+  { name: 'ServoMotor', note: 'Scaling, clamping, timing', changed: false },
+  { name: 'MMap / hps_0.h', note: 'Register access through the SoC address space', changed: false },
+];
+const h = 64;
+const gap = 18;
+const total = rows.length * h + (rows.length - 1) * gap;
+---
+
+<svg
+  class:list={['diagram', { compact }]}
+  viewBox={`0 0 560 ${total + 40}`}
+  role="img"
+  aria-labelledby={`${uid}-title ${uid}-desc`}
+>
+  <title id={`${uid}-title`}>Spider robot control stack</title>
+  <desc id={`${uid}-desc`}>
+    Five layers from top to bottom: Main.cpp command menu, the Spider class with motion methods, six SpiderLeg objects,
+    ServoMotor, and memory-mapped register access. Main.cpp and Spider are highlighted as the files I modified to add
+    backward stepping, left and right turns, and a smoother start-up.
+  </desc>
+  {
+    rows.map((r, i) => {
+      const y = 20 + i * (h + gap);
+      return (
+        <g class:list={['row', { changed: r.changed }]}>
+          {i > 0 && <path class="link" d={`M280,${y - gap} L280,${y}`} />}
+          <rect x="20" y={y} width="520" height={h} rx="8" />
+          <text x="40" y={y + 27} class="name">
+            {r.name}
+          </text>
+          <text x="40" y={y + 48} class="note">
+            {r.note}
+          </text>
+          {r.changed && (
+            <text x="520" y={y + 27} class="flag" text-anchor="end">
+              MODIFIED
+            </text>
+          )}
+        </g>
+      );
+    })
+  }
+</svg>
+
+<style>
+  .diagram {
+    width: 100%;
+    height: auto;
+    background: var(--surface);
+  }
+  rect {
+    fill: var(--raised);
+    stroke: #3a4b60;
+  }
+  .changed rect {
+    stroke: var(--accent);
+    fill: #1a2a3a;
+  }
+  .link {
+    stroke: #4f6178;
+    stroke-width: 1.5;
+    stroke-dasharray: 3 4;
+  }
+  .name {
+    font-family: var(--font-mono);
+    font-size: 17px;
+    fill: var(--text);
+  }
+  .note {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    fill: var(--text-2);
+  }
+  .flag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    fill: var(--accent);
+  }
+</style>

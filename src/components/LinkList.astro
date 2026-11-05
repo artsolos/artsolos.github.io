@@ -1,0 +1,96 @@
+---
+// Reports, repositories, and demos. Renders nothing for an empty list.
+// Google Drive previews get a direct-download fallback link.
+import Icon from './Icon.astro';
+import { driveFallback } from '../lib/site';
+
+interface Item {
+  label: string;
+  url: string;
+  note?: string;
+}
+interface Props {
+  items: Item[];
+  kind: 'report' | 'repo' | 'demo' | 'download';
+}
+const { items, kind } = Astro.props;
+const icon = kind === 'download' ? 'download' : kind === 'report' ? 'file' : kind === 'repo' ? 'github' : 'arrow-up-right';
+---
+
+{
+  items.length > 0 && (
+    <ul class="links">
+      {items.map((item) => {
+        const fallback = kind === 'report' ? driveFallback(item.url) : undefined;
+        return (
+          <li>
+            <a href={item.url} class="primary" rel="noopener" download={kind === 'download'}>
+              <Icon name={icon} />
+              <span>
+                {item.label}
+                {kind !== 'download' && <span class="visually-hidden"> (opens external site)</span>}
+              </span>
+            </a>
+            {item.note && <span class="note">{item.note}</span>}
+            {fallback && (
+              <a href={fallback} class="fallback" rel="noopener">
+                <Icon name="download" />
+                Download PDF<span class="visually-hidden">: {item.label}</span>
+              </a>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  )
+}
+
+<style>
+  .links {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: var(--s-2);
+  }
+  li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-1) var(--s-4);
+    padding: var(--s-2) 0;
+    border-bottom: 1px solid var(--divider);
+  }
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: 44px;
+  }
+  .primary {
+    color: var(--text);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .primary:hover {
+    color: var(--accent);
+  }
+  .primary :global(.icon) {
+    color: var(--accent);
+    width: 18px;
+    height: 18px;
+    flex: none;
+  }
+  .fallback {
+    font-size: var(--fs-small);
+    margin-left: auto;
+  }
+  .fallback :global(.icon) {
+    width: 16px;
+    height: 16px;
+  }
+  .note {
+    font-size: var(--fs-small);
+    color: var(--text-2);
+    flex-basis: 100%;
+  }
+</style>

@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CourseEvidence from '../../components/CourseEvidence.astro';
+import BusinessCourseEvidence from '../../components/BusinessCourseEvidence.astro';
+import ProjectPreview from '../../components/ProjectPreview.astro';
+import { courses, courseProjectSlugs } from '../../data/organization';
+import { eece2160 } from '../../data/courses';
+import { getProjects, href, projectHref } from '../../lib/site';
+export function getStaticPaths(){return courses.map(course=>({params:{course:course.id},props:{course}}));}
+const {course}=Astro.props;
+const ids=courseProjectSlugs(course.id);
+const projects=(await getProjects()).filter(p=>ids.includes(p.id));
+---
+<BaseLayout title={course.title} description={course.description}>
+ <div class="container editorial-page course-detail">
+  <header data-entrance-load class="collection-head"><a class="back-link" href={href('coursework/')}>← All coursework</a><p class="eyebrow">{course.group} / {course.code}</p><h1 class="course-title">{course.title}</h1><p class="lede">{course.description}</p></header>
+  {course.id==='embedded-design'?<><div class="project-collection grid-view">{projects.map((p,i)=><ProjectPreview project={p} index={i}/>)}</div><section class="course-group"><h2 id="seq-title">{eece2160.name}: the lab sequence</h2><p>Eight labs from the course, in order. Labs 1–3 are combined into one project because each one builds on the last.</p><ol class="lab-sequence">{eece2160.labs.map(l=><li><span class="eyebrow">Lab {l.n}</span><a href={projectHref(l.slug)}>{l.title}</a></li>)}</ol></section></>:course.group==='Business'?<BusinessCourseEvidence only={course.id}/>:<CourseEvidence only={course.id}/>}
+  <p class="collection-footer"><a href={href('work/')}>Browse all work ↗</a> · <a href={href('archive/')}>Early-work archive ↗</a></p>
+ </div>
+</BaseLayout>

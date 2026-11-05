@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+.claude/launch.json
+.codex/
+.DS_Store
+Thumbs.db
+*.log
+__pycache__/
+qa/
+private/
+Portfolio_Master_Prompt.txt

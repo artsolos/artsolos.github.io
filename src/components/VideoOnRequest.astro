@@ -1,0 +1,119 @@
+---
+// A poster with a play button. The video element (with native controls) is only
+// created when requested, so nothing downloads on page load. Without JS the
+// poster links straight to the MP4 file.
+import Icon from './Icon.astro';
+import { href } from '../lib/site';
+
+interface Props {
+  src: string;
+  poster: string;
+  width: number;
+  height: number;
+  title: string;
+  caption: string;
+}
+const { src, poster, width, height, title, caption } = Astro.props;
+---
+
+<figure class="video reveal">
+  <div class="player" style={`aspect-ratio:${width}/${height};max-width:min(44rem,calc(75vh * ${width} / ${height}))`} data-video={href(src)} data-title={title}>
+    <img src={href(poster)} alt="" width={width} height={height} loading="lazy" decoding="async" />
+    <a class="play" href={href(src)}>
+      <span class="play-icon"><Icon name="play" /></span>
+      <span>Play video<span class="visually-hidden">: {title}</span></span>
+    </a>
+  </div>
+  <figcaption>{caption} <a href={href(src)}>Open video file<span class="visually-hidden">: {title} (MP4)</span></a></figcaption>
+</figure>
+
+<script>
+  import {onPage} from '../lib/page-lifecycle';
+  onPage(() => {
+  document.querySelectorAll<HTMLElement>('[data-video]').forEach((player) => {
+    const link = player.querySelector<HTMLAnchorElement>('.play');
+    link?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const video = document.createElement('video');
+      video.src = player.dataset.video!;
+      video.controls = true;
+      video.tabIndex = 0;
+      video.playsInline = true;
+      video.preload = 'metadata';
+      video.setAttribute('aria-label', player.dataset.title ?? 'Project video');
+      const poster = player.querySelector('img');
+      if (poster) video.poster = poster.src;
+      player.replaceChildren(video);
+      video.focus();
+      video.play().catch(() => {
+        /* Autoplay can be refused; the native controls remain available. */
+      });
+    });
+  });
+  });
+</script>
+
+<style>
+  .video {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .player {
+    position: relative;
+    width: 100%;
+    max-width: 44rem;
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .player img,
+  .player :global(video) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s-3);
+    color: var(--text);
+    font-weight: 500;
+    text-decoration: none;
+    background: rgb(11 15 20 / 0.35);
+    transition: background-color var(--dur-fast) ease;
+  }
+  .play:hover {
+    background: rgb(11 15 20 / 0.15);
+  }
+  .play:focus-visible {
+    outline-offset: -4px;
+  }
+  .play-icon {
+    display: grid;
+    place-items: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .play-icon :global(.icon) {
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+    margin-left: 3px;
+  }
+  .play > span:last-child {
+    background: rgb(11 15 20 / 0.75);
+    padding: var(--s-1) var(--s-3);
+    border-radius: 4px;
+  }
+  figcaption {
+    font-size: var(--fs-small);
+    color: var(--text-2);
+  }
+</style>

@@ -1,0 +1,225 @@
+---
+import Icon from './Icon.astro';
+import { profile } from '../data/profile';
+import { href, resumeHref } from '../lib/site';
+
+const resume = resumeHref();
+const links = [
+  { label: 'Work', url: href('work/') },
+  { label: 'Coursework', url: href('coursework/') },
+  { label: 'About', url: href('about/') },
+  { label: 'Contact', url: href('contact/') },
+];
+---
+
+<header class="site-header">
+  <div class="container bar">
+    <a class="brand" href={href()} aria-label={profile.name}>
+      <span aria-hidden="true">AREFIN<i>/</i>MAHMOOD</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="site-menu"
+        hidden
+      >
+        <Icon name="menu" class="i-open" />
+        <Icon name="close" class="i-close" />
+        <span class="menu-label">Menu</span>
+      </button>
+      <ul id="site-menu" class="nav-list">
+        {
+          links.map((l) => (
+            <li>
+              <a href={l.url} aria-current={Astro.url.pathname === l.url ? 'page' : undefined}>{l.label}</a>
+            </li>
+          ))
+        }
+        {
+          resume && (
+            <li>
+              <a class="nav-resume" href={resume}>
+                Resume <span class="visually-hidden">(PDF)</span>
+              </a>
+            </li>
+          )
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  import {onPage} from '../lib/page-lifecycle';
+  onPage((signal) => {
+  // Mobile menu: a disclosure button. Escape and outside clicks close it and
+  // return focus to the toggle; resizing to desktop resets it.
+  const header = document.querySelector<HTMLElement>('.site-header');
+  const toggle = header?.querySelector<HTMLButtonElement>('.menu-toggle');
+  const list = header?.querySelector<HTMLElement>('#site-menu');
+  if (header && toggle && list) {
+    const mq = window.matchMedia('(max-width: 40rem)');
+    const setOpen = (open: boolean, returnFocus = false) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      header.classList.toggle('menu-open', open);
+      if (!open && returnFocus) toggle.focus();
+    };
+    const sync = () => {
+      toggle.hidden = !mq.matches;
+      header.classList.toggle('has-menu', mq.matches);
+      if (!mq.matches) setOpen(false);
+    };
+    sync();
+    mq.addEventListener('change', sync, {signal});
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'), {signal});
+    list.addEventListener('click', (e) => {
+      const link = (e.target as HTMLElement).closest('a');
+      if (!link) return;
+      setOpen(false);
+      const destination = new URL(link.href);
+      if (destination.pathname === location.pathname && destination.hash) {
+        const target = document.getElementById(destination.hash.slice(1));
+        target?.setAttribute('tabindex', '-1');
+        target?.focus({ preventScroll: true });
+      }
+    }, {signal});
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && header.classList.contains('menu-open')) setOpen(false, true);
+    }, {signal});
+    document.addEventListener('click', (e) => {
+      if (header.classList.contains('menu-open') && !header.contains(e.target as Node)) setOpen(false);
+    }, {signal});
+    // Subtle border once the page scrolls.
+    const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true, signal });
+  }
+  });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgb(11 15 20 / 0.82);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur-med) ease;
+  }
+  .site-header.scrolled {
+    border-bottom-color: var(--divider);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+    min-height: var(--header-h);
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-3);
+    min-height: 44px;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .brand-mark {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--accent);
+    border-radius: 3px;
+    box-shadow: inset 0 0 0 2px var(--bg), inset 0 0 0 7px var(--accent);
+  }
+  .nav-list {
+    display: flex;
+    gap: var(--s-1);
+    list-style: none;
+    padding: 0;
+  }
+  .nav-list a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--s-3);
+    color: var(--text-2);
+    text-decoration: none;
+    font-size: var(--fs-small);
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    transition:
+      color var(--dur-fast) ease,
+      background-color var(--dur-fast) ease;
+  }
+  .nav-list a:hover {
+    color: var(--text);
+    background: var(--accent-wash);
+  }
+  .nav-list .nav-resume {
+    color: var(--accent);
+  }
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 var(--s-3);
+    background: transparent;
+    border: 1px solid var(--control);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--fs-small);
+  }
+  .menu-toggle[hidden] {
+    display: none;
+  }
+  .menu-toggle :global(.icon) {
+    width: 20px;
+    height: 20px;
+  }
+  .menu-toggle :global(.i-close),
+  .menu-open .menu-toggle :global(.i-open) {
+    display: none;
+  }
+  .menu-open .menu-toggle :global(.i-close) {
+    display: block;
+  }
+
+  /* Small screens: collapse into a disclosure only when JS has set it up.
+     Without JS the links simply wrap and stay visible. */
+  @media (max-width: 40rem) {
+    .site-header:not(.has-menu) {
+      position: relative;
+    }
+    .bar {
+      flex-wrap: wrap;
+    }
+    .has-menu .nav-list {
+      display: none;
+    }
+    .has-menu.menu-open .nav-list {
+      display: grid;
+      position: absolute;
+      inset: var(--header-h) 0 auto 0;
+      padding: var(--s-3) var(--gutter) var(--s-5);
+      background: var(--bg);
+      border-bottom: 1px solid var(--divider);
+      gap: var(--s-1);
+    }
+    .has-menu.menu-open .nav-list a {
+      font-size: 1.0625rem;
+      width: 100%;
+    }
+    .nav-list {
+      flex-wrap: wrap;
+    }
+  }
+</style>

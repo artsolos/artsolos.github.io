@@ -1,0 +1,19 @@
+---
+import ProjectVisual from './ProjectVisual.astro';
+import { projectHref, type Project } from '../lib/site';
+import { subjectFor } from '../data/organization';
+interface Props { project: Project; index?: number; selected?: boolean; eager?: boolean }
+const { project, index=0, selected=false, eager=false }=Astro.props;
+const d=project.data, subject=subjectFor(project.id);
+---
+<article class:list={['project-preview',{selected}]} data-project data-subject={subject.id} data-categories={d.categories.join(' ')} data-search={`${d.title} ${d.summary} ${d.tools.join(' ')} ${d.series?.name ?? ''}`.toLowerCase()}>
+  <a class="preview-link" href={projectHref(project.id)}>
+    <div class="preview-image"><ProjectVisual project={project} eager={eager} sizes={selected?'(min-width: 900px) 48vw, 100vw':'(min-width: 900px) 30vw, 100vw'} /></div>
+    <div class="preview-copy">
+      <div class="preview-meta"><span class="preview-index">{String(index+1).padStart(2,'0')}</span><span class="preview-subject">{subject.label}</span>{d.period && <span class="preview-period">{d.period}</span>}</div>
+      <h2>{d.title}<span aria-hidden="true"> ↗</span></h2>
+      <p>{d.summary}</p>
+      <span class="preview-context">{d.series?.name ?? d.context}</span>
+    </div>
+  </a>
+</article>

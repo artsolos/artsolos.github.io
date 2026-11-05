@@ -1,0 +1,51 @@
+---
+import { profile } from '../data/profile';
+import { href } from '../lib/site';
+---
+
+<footer class="site-footer">
+  <div class="container foot">
+    <p>{profile.name} · {profile.identity}, {profile.school}</p>
+    <ul>
+      <li><a href={href('work/')}>Work</a></li>
+      <li><a href={href('coursework/')}>Coursework</a></li>
+      <li><a href={href('about/')}>About</a></li>
+      <li><a href={href('contact/')}>Contact</a></li>
+      <li><a href={href('business/')}>Business</a></li>
+      <li><a href={href('archive/')}>Early work</a></li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--divider);
+    padding-block: var(--s-6);
+    color: var(--text-2);
+    font-size: var(--fs-small);
+  }
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3) var(--s-6);
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    list-style: none;
+    padding: 0;
+  }
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: var(--s-2);
+    color: var(--text-2);
+  }
+  a:hover {
+    color: var(--text);
+  }
+</style>

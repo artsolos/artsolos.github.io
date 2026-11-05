@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { getFeatured, href, projectHref } from '../lib/site';
+
+const featured = await getFeatured();
+---
+
+<BaseLayout title="Page not found" description="This page doesn't exist. Try the projects page or the homepage." noindex>
+  <div class="container page">
+    <p class="eyebrow">404</p>
+    <h1>That page isn't here.</h1>
+    <p class="lede">The link may be old, or the address may have a typo. These should help:</p>
+    <div class="actions">
+      <a class="btn btn-primary" href={href('work/')}>
+        All projects
+        <Icon name="arrow-right" />
+      </a>
+      <a class="btn" href={href()}>Homepage</a>
+    </div>
+    <h2 class="eyebrow">Featured case studies</h2>
+    <ul>
+      {
+        featured.map((p) => (
+          <li>
+            <a href={projectHref(p.id)}>{p.data.title}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    display: grid;
+    gap: var(--s-4);
+    padding-block: var(--s-9);
+    max-width: 48rem;
+  }
+  h1 {
+    font-size: clamp(2.2rem, 1.6rem + 3vw, 3.5rem);
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    margin-bottom: var(--s-6);
+  }
+  ul {
+    padding-left: 1.1em;
+  }
+  li a {
+    display: inline-block;
+    padding-block: var(--s-2);
+  }
+</style>

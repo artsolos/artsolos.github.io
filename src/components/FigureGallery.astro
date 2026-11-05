@@ -1,0 +1,101 @@
+---
+// Captioned technical figures, grouped by `group`. Images are responsive,
+// dimensioned, and lazy-loaded; each links to the full-size optimized file.
+import { Picture, getImage } from 'astro:assets';
+import type { Project } from '../lib/site';
+
+interface Props {
+  figures: Project['data']['figures'];
+}
+const { figures } = Astro.props;
+const groups = new Map<string, typeof figures>();
+for (const f of figures) {
+  const key = f.group ?? '';
+  groups.set(key, [...(groups.get(key) ?? []), f]);
+}
+const full = await Promise.all(figures.map((f) => f.src.format === 'svg'
+  ? Promise.resolve({ src: f.src.src })
+  : getImage({ src: f.src, width: Math.min(f.src.width, 1800), format: 'webp' })));
+const fullFor = (f: (typeof figures)[number]) => full[figures.indexOf(f)].src;
+---
+
+{
+  [...groups].map(([group, items]) => (
+    <section class="group" aria-label={group || 'Figures'}>
+      {group && <h3 class="group-title">{group}</h3>}
+      <div class:list={['grid', { single: items.length === 1 }]}>
+        {items.map((f) => (
+          <figure class="reveal">
+            <a href={fullFor(f)} class="frame" aria-label={`Open full-size image: ${f.alt}`}>
+              {f.src.format === 'svg' ? (
+                <img src={f.src.src} alt={f.alt} width={f.src.width} height={f.src.height} loading="lazy" decoding="async" />
+              ) : (
+              <Picture
+                src={f.src}
+                alt={f.alt}
+                formats={['avif']}
+        fallbackFormat="webp"
+                widths={[400, 640, 960, 1280].filter((w) => w <= f.src.width).concat(f.src.width < 400 ? [f.src.width] : [])}
+                sizes={items.length === 1 ? '(min-width: 48rem) 720px, 100vw' : '(min-width: 64rem) 440px, (min-width: 40rem) 46vw, 100vw'}
+                loading="lazy"
+                decoding="async"
+              />
+              )}
+            </a>
+            <figcaption>{f.caption}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+  ))
+}
+
+<style>
+  .group + .group {
+    margin-top: var(--s-7);
+  }
+  .group-title {
+    font-family: var(--font-mono);
+    font-size: var(--fs-label);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-2);
+    margin-bottom: var(--s-4);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+    gap: var(--s-5);
+  }
+  .grid.single {
+    grid-template-columns: minmax(0, 45rem);
+  }
+  figure {
+    display: grid;
+    gap: var(--s-3);
+    align-content: start;
+  }
+  .frame {
+    display: block;
+    background: #fff0;
+    border: 1px solid var(--divider);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    transition: border-color var(--dur-fast) ease;
+  }
+  .frame:hover {
+    border-color: var(--control);
+  }
+  .frame :global(img) {
+    width: 100%;
+    max-height: 32rem;
+    object-fit: contain;
+    background: var(--surface);
+  }
+  figcaption {
+    font-size: var(--fs-small);
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+</style>

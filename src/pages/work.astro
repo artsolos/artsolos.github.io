@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProjectPreview from '../components/ProjectPreview.astro';
+import { getProjects, href } from '../lib/site';
+import { subjects } from '../data/organization';
+const projects=await getProjects();
+---
+<BaseLayout title="Work" description="All 25 engineering, computing, physics and business case studies, with original evidence, contributions and reports.">
+  <div class="container editorial-page" data-work>
+    <header data-entrance-load class="collection-head"><h1 class="display-title">Work <sup>({projects.length})</sup></h1><div class="collection-intro"><p>Projects, labs, and course studies.<br/>Hardware to software, with the evidence behind each decision.</p><div class="view-switch" hidden data-view-switch role="group" aria-label="Project view"><button type="button" data-view="list" aria-pressed="true">List</button><button type="button" data-view="grid" aria-pressed="false">Grid</button></div></div></header>
+    <div class="work-tools" hidden data-work-tools>
+      <div class="subject-filters" role="group" aria-label="Filter projects by subject"><button type="button" data-subject-filter="all" aria-pressed="true">All</button>{subjects.map(s=><button type="button" data-subject-filter={s.id} aria-pressed="false">{s.label}</button>)}</div>
+      <label class="search-label">Search projects or tools<input type="search" data-search-input placeholder="Search the collection…" /></label>
+      <p role="status" data-work-status>{projects.length} projects</p>
+    </div>
+    <div class="work-row-head" aria-hidden="true"><span>#</span><span>Preview</span><span>Project</span><span>Subject</span><span class="head-course">Course / context</span><span>Period</span></div>
+    <div class="project-collection" data-project-collection>{projects.map((p,i)=><ProjectPreview project={p} index={i} eager={i<2}/>)}</div>
+    <p class="no-results" hidden data-no-results>No projects match these filters. Try another subject or search.</p>
+    <p class="collection-footer">Explore the <a href={href('coursework/')}>course collections</a>, the <a href={href('business/')}>Business Administration minor</a>, or <a href={href('archive/')}>early work</a>.</p>
+  </div>
+</BaseLayout>
+<script>
+ import {onPage} from '../lib/page-lifecycle';
+ onPage(() => {
+ const root=document.querySelector<HTMLElement>('[data-work]');
+ if(root){
+  const cards=[...root.querySelectorAll<HTMLElement>('[data-project]')];
+  const buttons=[...root.querySelectorAll<HTMLButtonElement>('[data-subject-filter]')];
+  const input=root.querySelector<HTMLInputElement>('[data-search-input]')!;
+  const list=root.querySelector<HTMLElement>('[data-project-collection]')!;
+  const params=new URL(location.href).searchParams;
+  let view=params.get('view')==='grid'?'grid':'list';
+  const setView=()=>{list.classList.toggle('grid-view',view==='grid');root.querySelectorAll<HTMLElement>('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===view)));};
+  setView();
+  let subject=params.get('subject')??'all';
+  if(!buttons.some(b=>b.dataset.subjectFilter===subject))subject='all';
+  let category=params.get('category')??'';
+  let query=params.get('q')??'';input.value=query;
+  root.querySelector<HTMLElement>('[data-work-tools]')!.hidden=false;
+  root.querySelector<HTMLElement>('[data-view-switch]')!.hidden=false;
+  const apply=(update=false)=>{
+   let count=0;
+   for(const card of cards){card.hidden=!( (subject==='all'||card.dataset.subject===subject)&&(!category||card.dataset.categories?.split(' ').includes(category))&&(!query||card.dataset.search?.includes(query.toLowerCase())));if(!card.hidden)count++;}
+   buttons.forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.subjectFilter===subject)));
+   root.querySelector<HTMLElement>('[data-work-status]')!.textContent=`${count} of ${cards.length} projects${category?` · skill: ${category.replaceAll('-',' ')}`:''}`;
+   root.querySelector<HTMLElement>('[data-no-results]')!.hidden=count>0;
+   if(update){const url=new URL(location.href);for(const [key,value] of [['subject',subject==='all'?'':subject],['category',category],['q',query],['view',view==='grid'?'grid':'']]){if(value)url.searchParams.set(key,value);else url.searchParams.delete(key);}history.replaceState(history.state,'',url);}
+  };
+  buttons.forEach(b=>b.addEventListener('click',()=>{subject=b.dataset.subjectFilter!;category='';apply(true);}));
+  input.addEventListener('input',()=>{query=input.value.trim();apply(true);});
+  root.querySelectorAll<HTMLButtonElement>('[data-view]').forEach(b=>b.addEventListener('click',()=>{view=b.dataset.view!;setView();apply(true);}));
+  apply();
+ }
+ });
+</script>

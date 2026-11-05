@@ -1,0 +1,202 @@
+[
+  {
+    "slug": "spider-hexapod-control",
+    "url": "/projects/spider-hexapod-control/",
+    "primarySubject": "Hardware & robotics",
+    "collection": "/coursework/embedded-design/",
+    "selected": true,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "arm-fpga-servo-control",
+    "url": "/projects/arm-fpga-servo-control/",
+    "primarySubject": "Hardware & robotics",
+    "collection": "/coursework/embedded-design/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "forge-of-hephaestus",
+    "url": "/projects/forge-of-hephaestus/",
+    "primarySubject": "Design & fabrication",
+    "collection": null,
+    "selected": true,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "motor-control",
+    "url": "/projects/motor-control/",
+    "primarySubject": "Hardware & robotics",
+    "collection": "/coursework/embedded-design/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "sonar-distance-measurement",
+    "url": "/projects/sonar-distance-measurement/",
+    "primarySubject": "Hardware & robotics",
+    "collection": "/coursework/embedded-design/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "cpp-memory-mapped-io",
+    "url": "/projects/cpp-memory-mapped-io/",
+    "primarySubject": "Hardware & robotics",
+    "collection": "/coursework/embedded-design/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "fpga-digital-logic",
+    "url": "/projects/fpga-digital-logic/",
+    "primarySubject": "Hardware & robotics",
+    "collection": "/coursework/embedded-design/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "arduino-joystick-lcd",
+    "url": "/projects/arduino-joystick-lcd/",
+    "primarySubject": "Hardware & robotics",
+    "collection": null,
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "goldberg-machine",
+    "url": "/projects/goldberg-machine/",
+    "primarySubject": "Design & fabrication",
+    "collection": null,
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "architectural-chess-set",
+    "url": "/projects/architectural-chess-set/",
+    "primarySubject": "Design & fabrication",
+    "collection": null,
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "systemverilog-teaching-processor",
+    "url": "/projects/systemverilog-teaching-processor/",
+    "primarySubject": "Hardware & robotics",
+    "collection": "/coursework/digital-design/",
+    "selected": true,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "mastermind-feedback",
+    "url": "/projects/mastermind-feedback/",
+    "primarySubject": "Software & algorithms",
+    "collection": "/coursework/engineering-algorithms/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "linked-list-flip",
+    "url": "/projects/linked-list-flip/",
+    "primarySubject": "Software & algorithms",
+    "collection": "/coursework/engineering-algorithms/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "word-search-sorting",
+    "url": "/projects/word-search-sorting/",
+    "primarySubject": "Software & algorithms",
+    "collection": "/coursework/engineering-algorithms/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "sudoku-backtracking",
+    "url": "/projects/sudoku-backtracking/",
+    "primarySubject": "Software & algorithms",
+    "collection": "/coursework/engineering-algorithms/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "python-exercises-numerical-methods",
+    "url": "/projects/python-exercises-numerical-methods/",
+    "primarySubject": "Software & algorithms",
+    "collection": "/coursework/computing-fundamentals/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "python-file-inventory",
+    "url": "/projects/python-file-inventory/",
+    "primarySubject": "Software & algorithms",
+    "collection": "/coursework/computing-fundamentals/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "physics-oscillations-waves",
+    "url": "/projects/physics-oscillations-waves/",
+    "primarySubject": "Physics",
+    "collection": "/coursework/physics-2/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "physics-fields-circuits",
+    "url": "/projects/physics-fields-circuits/",
+    "primarySubject": "Physics",
+    "collection": "/coursework/physics-2/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "physics-transients-magnetism",
+    "url": "/projects/physics-transients-magnetism/",
+    "primarySubject": "Physics",
+    "collection": "/coursework/physics-2/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "physics-measurement-motion",
+    "url": "/projects/physics-measurement-motion/",
+    "primarySubject": "Physics",
+    "collection": "/coursework/physics-1/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "physics-circular-rotation",
+    "url": "/projects/physics-circular-rotation/",
+    "primarySubject": "Physics",
+    "collection": "/coursework/physics-1/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "physics-energy-momentum",
+    "url": "/projects/physics-energy-momentum/",
+    "primarySubject": "Physics",
+    "collection": "/coursework/physics-1/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "columbia-financial-analysis",
+    "url": "/projects/columbia-financial-analysis/",
+    "primarySubject": "Business",
+    "collection": "/coursework/financial-reporting/",
+    "selected": false,
+    "preserveAllContent": true
+  },
+  {
+    "slug": "evercrunch-marketing-plan",
+    "url": "/projects/evercrunch-marketing-plan/",
+    "primarySubject": "Business",
+    "collection": "/coursework/marketing/",
+    "selected": false,
+    "preserveAllContent": true
+  }
+]

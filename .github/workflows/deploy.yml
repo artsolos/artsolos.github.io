@@ -1,0 +1,49 @@
+name: Deploy portfolio to GitHub Pages
+
+# First publication is manual, after local review. Enable push later if desired.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Configure actual repository address
+        env:
+          REPOSITORY: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+        shell: bash
+        run: |
+          owner="${OWNER,,}"
+          repo="${REPOSITORY#*/}"
+          echo "SITE_URL=https://${owner}.github.io" >> "$GITHUB_ENV"
+          if [[ "${repo,,}" == "${owner}.github.io" ]]; then
+            echo "BASE_PATH=/" >> "$GITHUB_ENV"
+          else
+            echo "BASE_PATH=/${repo}" >> "$GITHUB_ENV"
+          fi
+      - name: Validate, build, and upload
+        uses: withastro/action@v6
+        with:
+          node-version: 24
+          build-cmd: npm run verify
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5

@@ -1,0 +1,80 @@
+---
+const uid = 'hf' + Math.random().toString(36).slice(2, 8);
+// Data path for Lab 8, drawn from the report: a C++ program maps the lightweight
+// HPS-to-FPGA bridge through /dev/mem, writes an angle to a PIO register, and FPGA
+// logic turns it into the servo's PWM signal. Addresses are the ones in the report's code.
+const boxes = [
+  { x: 20, label: 'C++ program', sub: 'ARM HPS · Linux' },
+  { x: 200, label: 'LW AXI bridge', sub: 'base 0xFF200000' },
+  { x: 380, label: 'PIO register', sub: 'offset 0x20' },
+  { x: 560, label: 'PWM logic', sub: 'FPGA fabric' },
+  { x: 740, label: 'RC servo', sub: '20 ms period' },
+];
+---
+
+<svg class="diagram" viewBox="0 0 900 170" role="img" aria-labelledby={`${uid}-title ${uid}-desc`}>
+  <title id={`${uid}-title`}>HPS-to-FPGA servo control path</title>
+  <desc id={`${uid}-desc`}>
+    Five blocks left to right: a C++ program on the ARM processor, the lightweight AXI bridge at base address 0xFF200000,
+    a PIO register at offset 0x20, PWM logic in the FPGA fabric, and the RC servo with a 20 millisecond PWM period.
+  </desc>
+  <defs>
+    <marker id={`${uid}-arrow`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#8bd5ff"></path>
+    </marker>
+  </defs>
+  {
+    boxes.map((b, i) => (
+      <g>
+        {i > 0 && <path class="arrow" d={`M${b.x - 38},85 L${b.x - 4},85`} marker-end={`url(#${uid}-arrow)`} />}
+        <rect x={b.x} y="45" width="142" height="80" rx="8" class:list={{ hw: i >= 3 }} />
+        <text x={b.x + 71} y="80" text-anchor="middle" class="lbl">
+          {b.label}
+        </text>
+        <text x={b.x + 71} y="102" text-anchor="middle" class="sub">
+          {b.sub}
+        </text>
+      </g>
+    ))
+  }
+  <text x="20" y="28" class="cap">SOFTWARE</text>
+  <text x="560" y="28" class="cap">HARDWARE</text>
+  <text x="20" y="155" class="mono">*servo_addr = angle;</text>
+</svg>
+
+<style>
+  .diagram {
+    width: 100%;
+    height: auto;
+    background: var(--surface);
+  }
+  rect {
+    fill: var(--raised);
+    stroke: #4f6178;
+  }
+  rect.hw {
+    stroke: var(--accent-line);
+  }
+  .arrow {
+    stroke: var(--accent);
+    stroke-width: 1.6;
+  }
+  .lbl {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 500;
+    fill: var(--text);
+  }
+  .sub,
+  .mono {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    fill: var(--text-2);
+  }
+  .cap {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    fill: var(--accent);
+  }
+</style>

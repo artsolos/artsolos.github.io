@@ -1,0 +1,7 @@
+/* Only the initial, bounded bootstrap hides anything. Scroll content is visible
+   by default and receives a self-completing Web Animation upon intersection. */
+@media(prefers-reduced-motion:no-preference){
+ html[data-entrance-armed] [data-entrance-load]{opacity:0}
+ html[data-entrance-armed] [data-entrance-load]:focus-within{opacity:1}
+}
+.home-name .name-entrance{display:block;text-align:initial}

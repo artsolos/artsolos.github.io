@@ -1,0 +1,117 @@
+---
+
+import ProjectCard from './ProjectCard.astro';
+
+import { getProjects, projectHref } from '../lib/site';
+
+const projects = (await getProjects()).filter((p) => p.data.placement === 'coursework');
+const digitalDesignProjects = projects.filter((p) => p.data.series?.name === 'EECE 2323');
+const algorithmProjects = projects.filter((p) => p.data.series?.name === 'EECE 2560');
+const computingProjects = projects.filter((p) => p.data.series?.name === 'Computing Fundamentals');
+const physicsProjects = projects.filter((p) => p.data.series?.name === 'Physics 2 Labs');
+const physics1Projects = projects.filter((p) => p.data.series?.name === 'Physics 1 Labs');
+const stages = [
+  { n: 1, title: 'Signed addition', detail: '16-bit arithmetic and overflow', anchor: 'lab-1-signed-addition' },
+  { n: 2, title: 'Arithmetic and logic', detail: 'Nine ALU operations and branch conditions', anchor: 'lab-2-arithmetic-and-logic' },
+  { n: 3, title: 'Register-backed operands', detail: 'Clocked writes, two read ports, and muxes', anchor: 'lab-3-register-backed-operands' },
+  { n: 4, title: 'Load and store', detail: 'Data memory and writeback selection', anchor: 'lab-4-load-and-store' },
+  { n: 5, title: 'Instruction decoding', detail: 'Opcode and immediate fields drive controls', anchor: 'lab-5-instruction-decoding' },
+  { n: 6, title: 'Fetching stored instructions', detail: 'Program counter, ROM, and field mapper', anchor: 'lab-6-fetching-stored-instructions' },
+  { n: 7, title: 'Branches and a multiplication loop', detail: 'Conditional PC updates; documented 4 × 3 test', anchor: 'lab-7-branches-and-a-multiplication-loop' },
+];
+
+interface Props { only: string }
+const { only }=Astro.props;
+---
+{only === "digital-design" && (
+    <section id="digital-design" aria-labelledby="course-title">
+      <div class="section-head">
+        <p class="eyebrow">EECE 2323 · May–June 2026</p>
+        <h2 id="course-title">Fundamentals of Digital Design</h2>
+        <p class="lede">Seven individual labs build one connected SystemVerilog datapath in Vivado on a TUL PYNQ board. The case study follows the implementation from signed arithmetic to instruction fetch and branch control.</p>
+      </div>
+      <div class="course-projects">
+        {digitalDesignProjects.map((project) => <ProjectCard project={project} headingLevel="h3" eager />)}
+      </div>
+      <ol class="stages" aria-label="EECE 2323 lab sequence">
+        {stages.map((stage) => (
+          <li>
+            <span class="eyebrow">Lab {stage.n}</span>
+            <a href={`${projectHref('systemverilog-teaching-processor')}#${stage.anchor}`}>{stage.title}</a>
+            <p>{stage.detail}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+)}
+{only === "engineering-algorithms" && (
+    <section class="course-section" id="engineering-algorithms" aria-labelledby="algorithms-title">
+      <div class="section-head">
+        <p class="eyebrow">EECE 2560 · Four team projects</p>
+        <h2 id="algorithms-title">Fundamentals of Engineering Algorithms</h2>
+        <p class="lede">C++ projects exploring object models, linked lists, sorting, search, and backtracking. Each A/B pair is grouped into one case study, with shared implementation and testing credited to the team.</p>
+        <p class="review-note">The submitted C++ was reviewed, not compiled or run during this portfolio update. Input-format checks are identified separately. Each download includes the source, relevant inputs, and review notes.</p>
+      </div>
+      <div class="algorithm-projects">
+        {algorithmProjects.map((project, i) => <ProjectCard project={project} headingLevel="h3" index={i % 2} />)}
+      </div>
+    </section>
+)}
+{only === "computing-fundamentals" && (
+    <section class="course-section" id="computing-fundamentals" aria-labelledby="computing-title">
+      <div class="section-head">
+        <p class="eyebrow">Individual Python coursework</p>
+        <h2 id="computing-title">Computing Fundamentals</h2>
+        <p class="lede">Related exercises grouped into two entries: Python and numerical methods, and a file-backed inventory application. Original screenshots are separated from new checks on the supplied notebook code.</p>
+        <p class="review-note">Homework 2 and its six section exports ran under Python 3.12.14. Fifteen selected functional checks passed, with three known boundary exceptions reproduced. Homework 1 has screenshots but is missing its referenced .py files; it was not rerun.</p>
+      </div>
+      <div class="computing-projects">
+        {computingProjects.map((project, i) => <ProjectCard project={project} headingLevel="h3" index={i} />)}
+      </div>
+    </section>
+)}
+{only === "physics-1" && (
+    <section class="course-section" id="physics-1" aria-labelledby="physics1-title">
+      <div class="section-head">
+        <p class="eyebrow">Spring 2025 · Shared experiments</p>
+        <h2 id="physics1-title">Physics 1 Labs</h2>
+        <p class="lede">Six reports grouped around measurement and motion, force and rotation, and energy and momentum. My partners and I followed the procedures and collected data together.</p>
+        <p class="review-note">Original figures distinguish readings from derived quantities and theoretical models. Conflicting calculations remain flagged, and report downloads have private identities removed. No new laboratory runs were performed.</p>
+      </div>
+      <div class="physics-projects">
+        {physics1Projects.map((project, i) => <ProjectCard project={project} headingLevel="h3" index={i % 2} />)}
+      </div>
+    </section>
+)}
+{only === "physics-2" && (
+    <section class="course-section" id="physics-2" aria-labelledby="physics-title">
+      <div class="section-head">
+        <p class="eyebrow">Fall 2025 · Partner experiments</p>
+        <h2 id="physics-title">Physics 2 Labs</h2>
+        <p class="lede">Six experiments grouped into three entries, from oscillation and resonance to electrical measurements and magnetic force. My partner and I followed the procedures and collected data together.</p>
+        <p class="review-note">Original report figures and privacy-reviewed PDFs distinguish measurements, derived fits, and model predictions. Numerical inconsistencies are identified in each entry; no new laboratory runs were performed.</p>
+      </div>
+      <div class="physics-projects">
+        {physicsProjects.map((project, i) => <ProjectCard project={project} headingLevel="h3" index={i % 2} />)}
+      </div>
+    </section>
+)}
+<style>
+  .page { padding-block: var(--s-7) var(--s-9); }
+  h1 { font-size: clamp(2.2rem, 1.6rem + 3vw, 3.75rem); max-width: 20ch; }
+  .back { display: inline-flex; align-items: center; gap: var(--s-2); min-height: 44px; justify-self: start; }
+  .course-projects { max-width: 48rem; }
+  .course-nav { display: flex; flex-wrap: wrap; gap: var(--s-3); margin-bottom: var(--s-7); }
+  .course-section { margin-top: var(--s-9); padding-top: var(--s-8); border-top: 1px solid var(--divider); }
+  .algorithm-projects, .computing-projects, .physics-projects { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-5); }
+  @media (min-width: 48rem) {
+    .algorithm-projects, .computing-projects, .physics-projects { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  .review-note { color: var(--text-2); font-size: var(--fs-small); max-width: var(--measure); }
+  .stages { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: var(--s-3); margin-top: var(--s-6); }
+  .stages li { display: grid; align-content: start; gap: var(--s-2); padding: var(--s-4); background: var(--surface); border: 1px solid var(--divider); border-radius: var(--radius-sm); }
+  .stages a { color: var(--text); min-height: 44px; display: flex; align-items: center; font-weight: 600; }
+  .stages a:hover { color: var(--accent); }
+  .stages p, .earlier { color: var(--text-2); font-size: var(--fs-small); }
+  .earlier { margin-top: var(--s-7); }
+</style>

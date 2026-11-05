@@ -1,0 +1,260 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroBoard from '../components/HeroBoard.astro';
+
+import { profile } from '../data/profile';
+import { capabilityGroups, type CategoryId } from '../data/categories';
+import { getProjects, href, projectHref } from '../lib/site';
+
+const projects = (await getProjects()).filter((p) => p.data.placement === 'projects');
+
+const inCategory = (c: CategoryId) => projects.filter((p) => p.data.categories.includes(c));
+const toLinks = (list: typeof projects) => list.slice(0, 3).map((p) => ({ title: p.data.title, href: projectHref(p.id) }));
+const layers = [
+  {
+    id: 'software' as const,
+    label: 'Software',
+    detail: 'C++ on embedded Linux, talking to hardware through memory-mapped registers.',
+    projects: toLinks(inCategory('embedded-software')),
+    allHref: `${href('work/')}?category=embedded-software`,
+  },
+  {
+    id: 'logic' as const,
+    label: 'FPGA logic',
+    detail: 'Counters, state machines, PWM generators, and bus-connected registers on the DE1-SoC.',
+    projects: toLinks(inCategory('digital-design')),
+    allHref: `${href('work/')}?category=digital-design`,
+  },
+  {
+    id: 'physical' as const,
+    label: 'Sensing & actuation',
+    detail: 'Servos, DC and stepper motors, an ultrasonic sensor, and a six-legged robot.',
+    projects: toLinks(inCategory('sensing-actuation')),
+    allHref: `${href('work/')}?category=sensing-actuation`,
+  },
+];
+
+const capabilities = capabilityGroups.map((g) => ({
+  ...g,
+  projects: projects.filter((p) => p.data.categories.some((c) => g.match.includes(c))),
+}));
+---
+<BaseLayout title="About" description="Education, engineering interests and evidence-linked skills of Arefin Mahmood, a Computer Engineering student with a Business Administration minor."><header data-entrance-load class="container editorial-page"><p class="eyebrow">Education / approach / interests</p><h1 class="display-title">About me</h1></header>  <section class="section" id="about" aria-labelledby="about-title">
+    <div class="container about-grid">
+      <div class="section-head">
+        <p class="eyebrow reveal">About</p>
+        <h2 id="about-title" class="reveal" style="--i:1">A bit about me</h2>
+      </div>
+      <div class="about-text prose reveal" style="--i:2">
+        <p>
+          I'm a computer engineering student at Northeastern University, with a minor in {profile.education.minor}.
+          My embedded systems work includes EECE 2160,
+          Embedded Design: Enabling Robotics. Over one term I went from adders and seven-segment decoders on an FPGA to
+          C++ programs that move a servo and a six-legged robot through memory-mapped registers.
+        </p>
+        <p>
+          Before that, first-year engineering projects had me prototyping with Arduino and Processing, laser-cut
+          enclosures, and SolidWorks parts, usually on a team. The part I enjoy most is getting a line of software to
+          make something physical move the way I expected, and figuring out why when it doesn't.
+        </p>
+        <dl class="edu">
+          <div>
+            <dt>School</dt>
+            <dd>{profile.education.school}</dd>
+          </div>
+          <div>
+            <dt>Program</dt>
+            <dd>{profile.education.program}</dd>
+          </div>
+          <div>
+            <dt>Minor</dt>
+            <dd>{profile.education.minor}</dd>
+          </div>
+          {
+            profile.education.graduation && (
+              <div>
+                <dt>Graduation</dt>
+                <dd>{profile.education.graduation}</dd>
+              </div>
+            )
+          }
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="cap-title">
+    <div class="container">
+      <div class="section-head">
+        <p class="eyebrow reveal">Capabilities</p>
+        <h2 id="cap-title" class="reveal" style="--i:1">What the work shows</h2>
+        <p class="lede reveal" style="--i:2">Grouped by evidence, with each group linked to the projects behind it.</p>
+      </div>
+      <div class="cap-grid">
+        {
+          capabilities.map((g, i) => (
+            <section class="cap reveal" style={`--i:${i}`} aria-labelledby={`cap-${g.id}`}>
+              <h3 id={`cap-${g.id}`}>{g.title}</h3>
+              <ul class="evidence">
+                {g.evidence.map((e) => (
+                  <li>{e}</li>
+                ))}
+              </ul>
+              <p class="cap-label">Shown in</p>
+              <ul class="cap-projects">
+                {g.projects.map((p) => (
+                  <li>
+                    <a href={projectHref(p.id)}>{p.data.title}</a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+<section class="section"><div class="container"><div class="section-head"><p class="eyebrow">Hardware meets software</p><h2>How the layers connect</h2><p class="lede">A conceptual view of the software, FPGA logic and physical systems in my work.</p></div><HeroBoard layers={layers} /></div></section></BaseLayout>
+<style>
+  .hero {
+    padding-block: clamp(var(--s-6), 5vw, var(--s-8)) clamp(var(--s-8), 8vw, var(--s-9));
+    background:
+      radial-gradient(60rem 30rem at 85% 10%, rgb(139 213 255 / 0.07), transparent 60%),
+      linear-gradient(var(--bg), var(--bg));
+  }
+  .hero-grid {
+    display: grid;
+    gap: var(--s-8);
+    align-items: center;
+  }
+  @media (min-width: 64rem) {
+    .hero-grid {
+      grid-template-columns: 1fr 1.05fr;
+      gap: var(--s-7);
+    }
+  }
+  .hero-text {
+    display: grid;
+    gap: var(--s-5);
+    align-content: center;
+  }
+  .hero-intro {
+    font-size: clamp(1.15rem, 1rem + 0.6vw, 1.4rem);
+    line-height: 1.5;
+    color: var(--text-2);
+    max-width: 34ch;
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    margin-top: var(--s-2);
+  }
+
+  .featured {
+    display: grid;
+    gap: var(--s-5);
+  }
+  @media (min-width: 48rem) {
+    .featured {
+      grid-template-columns: 1fr 1fr;
+    }
+    .featured > :global(:first-child) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .row-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: var(--s-4);
+    max-width: none;
+  }
+  .row-head > div {
+    display: grid;
+    gap: var(--s-3);
+  }
+  .more-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: var(--s-4);
+  }
+
+  .cap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: var(--s-4);
+  }
+  .cap {
+    display: grid;
+    align-content: start;
+    gap: var(--s-3);
+    padding: var(--s-5);
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius);
+  }
+  .cap h3 {
+    font-size: 1.2rem;
+  }
+  .evidence {
+    padding-left: 1.1em;
+    font-size: var(--fs-small);
+    color: var(--text-2);
+    display: grid;
+    gap: var(--s-1);
+  }
+  .cap-label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-top: var(--s-2);
+  }
+  .cap-projects {
+    list-style: none;
+    padding: 0;
+    display: grid;
+  }
+  .cap-projects a {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    font-size: var(--fs-small);
+    color: var(--text);
+    text-decoration-color: var(--accent-line);
+  }
+  .cap-projects a:hover {
+    color: var(--accent);
+  }
+
+  .about-grid {
+    display: grid;
+    gap: var(--s-4);
+  }
+  @media (min-width: 64rem) {
+    .about-grid {
+      grid-template-columns: 1fr 2fr;
+      gap: var(--s-8);
+    }
+  }
+  .edu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-4) var(--s-7);
+    margin-top: var(--s-6);
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--divider);
+  }
+  .edu dt {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+</style>

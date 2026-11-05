@@ -1,0 +1,213 @@
+---
+// Project card. `variant="feature"` is the large homepage case study,
+// "standard" is the grid card, "compact" is a text-forward row for secondary work.
+import Icon from './Icon.astro';
+import ProjectVisual from './ProjectVisual.astro';
+import { categories, settingLabels, statusLabels } from '../data/categories';
+import { projectHref, type Project } from '../lib/site';
+
+interface Props {
+  project: Project;
+  variant?: 'feature' | 'standard' | 'compact';
+  headingLevel?: 'h2' | 'h3';
+  index?: number;
+  eager?: boolean;
+  mediaSizes?: string;
+}
+const { project, variant = 'standard', headingLevel = 'h3', index = 0, eager = false, mediaSizes } = Astro.props;
+const { title, summary, contribution, setting, status, period, categories: cats } = project.data;
+const Heading = headingLevel;
+const url = projectHref(project.id);
+const sizes = mediaSizes ?? (
+  variant === 'feature' ? '(min-width: 64rem) 56vw, 100vw' : '(min-width: 64rem) 30vw, (min-width: 40rem) 46vw, 100vw'
+);
+---
+
+<article
+  class:list={['card', `card-${variant}`, 'reveal']}
+  style={`--i:${index}`}
+  data-categories={cats.join(' ')}
+>
+  {
+    variant !== 'compact' && (
+      <div class="media">
+        <ProjectVisual project={project} sizes={sizes} eager={eager} />
+      </div>
+    )
+  }
+  <div class="body">
+    <p class="meta">
+      <span>{settingLabels[setting]}</span>
+      {period && <span>{period}</span>}
+      {status !== 'complete' && <span class="status">{statusLabels[status]}</span>}
+    </p>
+    <Heading class="title">
+      <a href={url} class="stretched">{title}</a>
+    </Heading>
+    <p class="summary">{summary}</p>
+    {
+      variant !== 'compact' && (
+        <p class="contribution">
+          <span class="label">My part</span>
+          {contribution}
+        </p>
+      )
+    }
+    <div class="foot">
+      <ul class="tag-list" aria-label="Categories">
+        {cats.slice(0, variant === 'compact' ? 2 : 3).map((c) => <li class="tag">{categories[c].label}</li>)}
+      </ul>
+      <span class="go" aria-hidden="true">
+        {variant === 'feature' ? 'Read case study' : 'View'}
+        <Icon name="arrow-right" />
+      </span>
+    </div>
+  </div>
+</article>
+
+<style>
+  .card {
+    position: relative;
+    display: grid;
+    background: var(--surface);
+    border: 1px solid var(--divider);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition:
+      border-color var(--dur-fast) ease,
+      transform var(--dur-med) var(--ease-out),
+      box-shadow var(--dur-med) ease;
+  }
+  .card:hover,
+  .card:focus-within {
+    border-color: var(--control);
+    box-shadow: 0 18px 40px -24px rgb(0 0 0 / 0.8);
+  }
+  .card:focus-within {
+    border-color: var(--accent);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .card:hover {
+      transform: translateY(-3px);
+    }
+    .card:hover .media :global(img) {
+      transform: scale(1.025);
+    }
+  }
+  .media {
+    border-bottom: 1px solid var(--divider);
+  }
+  .body {
+    display: grid;
+    align-content: start;
+    gap: var(--s-3);
+    padding: var(--s-5);
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-1) var(--s-3);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+  .meta span + span::before {
+    content: '·';
+    margin-right: var(--s-3);
+    color: var(--divider);
+  }
+  .status {
+    color: var(--accent);
+  }
+  .title {
+    font-size: var(--fs-h3);
+  }
+  .title a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  /* The heading link covers the whole card; other content stays non-interactive. */
+  .stretched::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .stretched:focus-visible {
+    outline: none;
+  }
+  .summary {
+    color: var(--text-2);
+  }
+  .contribution {
+    font-size: var(--fs-small);
+    border-left: 2px solid var(--accent-line);
+    padding-left: var(--s-3);
+  }
+  .label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2px;
+  }
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+    margin-top: var(--s-2);
+  }
+  .go {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    color: var(--accent);
+  }
+  .go :global(.icon) {
+    width: 16px;
+    height: 16px;
+    transition: transform var(--dur-fast) var(--ease-out);
+  }
+  .card:hover .go :global(.icon) {
+    transform: translateX(3px);
+  }
+
+  /* Feature variant: media and text side by side on wide screens */
+  @media (min-width: 64rem) {
+    .card-feature {
+      grid-template-columns: 1.35fr 1fr;
+    }
+    .card-feature .media {
+      border-bottom: 0;
+      border-right: 1px solid var(--divider);
+    }
+    .card-feature .media :global(.visual) {
+      height: 100%;
+      aspect-ratio: auto;
+      min-height: 24rem;
+    }
+    .card-feature .body {
+      padding: var(--s-7) var(--s-6);
+      align-content: center;
+    }
+    .card-feature .title {
+      font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.2rem);
+    }
+  }
+
+  .card-compact .body {
+    padding: var(--s-4) var(--s-5);
+    gap: var(--s-2);
+  }
+  .card-compact .summary {
+    font-size: var(--fs-small);
+  }
+</style>

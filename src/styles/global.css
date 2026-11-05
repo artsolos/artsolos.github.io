@@ -1,0 +1,418 @@
+/* Design tokens and base styles. Documented in docs/design-system.md. */
+:root {
+  color-scheme: dark;
+
+  /* Color */
+  --bg: #0b0f14;
+  --surface: #121a24;
+  --raised: #182230;
+  --text: #f2f5f8;
+  --text-2: #a5b2c1;
+  --accent: #8bd5ff;
+  --on-accent: #0b0f14;
+  --divider: #2a3848; /* decorative only */
+  --control: #6b7f96; /* meaningful control boundaries, >= 3:1 on bg/surface/raised */
+  --accent-wash: rgb(139 213 255 / 0.1);
+  --accent-line: rgb(139 213 255 / 0.45);
+
+  /* Type */
+  --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --fs-body: 1.0625rem;
+  --fs-small: 0.9375rem;
+  --fs-label: 0.8125rem;
+  --fs-h3: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --fs-h2: clamp(1.75rem, 1.35rem + 1.8vw, 2.625rem);
+  --fs-h1: clamp(2.5rem, 1.6rem + 4.4vw, 4.75rem);
+
+  /* Space (4px grid) */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4rem;
+  --s-9: 6rem;
+  --s-10: 8rem;
+
+  --container: 76rem;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --measure: 68ch;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --header-h: 4rem;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur-fast: 180ms;
+  --dur-med: 320ms;
+  --dur-reveal: 560ms;
+  --reveal-shift: 16px;
+}
+
+/* Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+* {
+  margin: 0;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + var(--s-4));
+}
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: 1.65;
+  font-feature-settings: 'ss01' 0;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+img,
+video {
+  height: auto;
+}
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.12;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+h1 {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+h2 {
+  font-size: var(--fs-h2);
+}
+h3 {
+  font-size: var(--fs-h3);
+  letter-spacing: -0.01em;
+}
+p,
+li {
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+}
+a {
+  color: var(--accent);
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+a:hover {
+  text-decoration-thickness: 2px;
+}
+code,
+kbd,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* Focus: always visible, independent of the decorative divider color */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Layout helpers */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.section {
+  padding-block: clamp(var(--s-8), 9vw, var(--s-10));
+}
+.section + .section {
+  border-top: 1px solid var(--divider);
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.skip-link {
+  position: absolute;
+  left: var(--s-4);
+  top: -100px;
+  z-index: 100;
+  padding: var(--s-3) var(--s-4);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: var(--s-3);
+}
+
+/* Section heading pattern: mono eyebrow + heading + optional lede */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.section-head {
+  display: grid;
+  align-content: start;
+  gap: var(--s-3);
+  margin-bottom: var(--s-7);
+  max-width: 48rem;
+}
+.lede {
+  color: var(--text-2);
+  font-size: 1.125rem;
+  max-width: var(--measure);
+}
+.muted {
+  color: var(--text-2);
+}
+
+/* Buttons (links styled as buttons keep link semantics) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--control);
+  background: transparent;
+  color: var(--text);
+  font-weight: 500;
+  font-size: var(--fs-small);
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) ease,
+    border-color var(--dur-fast) ease,
+    color var(--dur-fast) ease,
+    transform var(--dur-fast) var(--ease-out);
+}
+.btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+.btn-primary:hover {
+  background: #b5e4ff;
+  border-color: #b5e4ff;
+}
+.btn svg {
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+}
+
+/* Small mono labels */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  color: var(--text-2);
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--divider);
+  border-radius: 4px;
+  background: var(--surface);
+}
+.tag-accent {
+  color: var(--accent);
+  border-color: var(--accent-line);
+  background: var(--accent-wash);
+}
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  list-style: none;
+  padding: 0;
+}
+
+/* Long-form text */
+.prose {
+  max-width: var(--measure);
+}
+.prose > * + * {
+  margin-top: 1.05em;
+}
+.prose h2 {
+  font-size: clamp(1.4rem, 1.2rem + 0.9vw, 1.85rem);
+  margin-top: 2.2em;
+  padding-top: var(--s-2);
+}
+.prose h3 {
+  font-size: 1.2rem;
+  margin-top: 1.8em;
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.25em;
+}
+.prose li + li {
+  margin-top: 0.35em;
+}
+.prose li::marker {
+  color: var(--text-2);
+}
+.prose code {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  padding: 0.05em 0.35em;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+.prose pre {
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-sm);
+  padding: var(--s-4);
+  overflow-x: auto;
+  line-height: 1.55;
+  font-size: 0.85rem;
+}
+.prose pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+}
+.prose blockquote {
+  border-left: 2px solid var(--accent-line);
+  padding-left: var(--s-4);
+  color: var(--text-2);
+}
+.prose strong {
+  font-weight: 600;
+}
+.prose table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+.prose caption {
+  text-align: left;
+  color: var(--text-2);
+  padding-block: var(--s-3);
+}
+.prose th, .prose td {
+  border: 1px solid var(--divider);
+  padding: var(--s-3);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.prose thead { background: var(--surface); }
+.prose tbody th { font-weight: 500; }
+@media (max-width: 30rem) {
+  .prose th, .prose td { padding: var(--s-2); }
+}
+
+/* Scroll reveal. Content is visible by default; the hidden start state applies only
+   when the head script has confirmed JavaScript and motion are allowed. */
+.motion .reveal {
+  opacity: 0;
+  transform: translateY(var(--reveal-shift));
+}
+.motion .reveal.is-visible {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--dur-reveal) var(--ease-out),
+    transform var(--dur-reveal) var(--ease-out);
+  transition-delay: calc(var(--i, 0) * 70ms);
+}
+.motion .reveal:focus-within {
+  opacity: 1;
+  transform: none;
+}
+/* Above-the-fold intro: a CSS animation that starts on first paint, so the hero
+   never waits on JavaScript or an observer. */
+.motion .intro {
+  animation: intro-rise var(--dur-reveal) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 80ms);
+}
+@keyframes intro-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--reveal-shift));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reveal, .intro, .board-svg, .btn, .panel li a .icon,
+  .card:hover img, .card:focus-within img, .card:hover .go .icon {
+    transform: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
