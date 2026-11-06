@@ -78,9 +78,10 @@ const fullFor = (f: (typeof figures)[number]) => full[figures.indexOf(f)].src;
   }
   .frame {
     display: block;
-    background: #fff0;
+    padding: var(--s-2);
+    background: var(--surface);
     border: 1px solid var(--divider);
-    border-radius: var(--radius-sm);
+    border-radius: var(--r-frame);
     overflow: hidden;
     transition: border-color var(--dur-fast) ease;
   }

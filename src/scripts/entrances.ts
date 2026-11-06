@@ -22,8 +22,11 @@ export function initEntrances(){
  const controller=new AbortController(),signal=controller.signal;
  const finish=(el:HTMLElement)=>{seen.add(el);running.get(el)?.cancel();running.delete(el);observer?.unobserve(el);};
  const showAll=()=>{load.forEach(finish);targets.forEach(finish);root.removeAttribute('data-entrance-armed');gate?.disconnect();observer?.disconnect();cancelAnimationFrame(raf);raf=0;};
- // A failed setup can never leave a paused animation hiding content.
- const watchdog=window.setTimeout(showAll,entrance.failOpenMs);
+ // A failed setup can never leave a paused animation hiding content. While the
+ // first-visit sound choice is open it covers the page, so the check waits for it.
+ const choosing=()=>root.hasAttribute('data-entry-choice')&&!!document.querySelector('.entry-choice');
+ const failOpen=()=>{if(choosing())watchdog=window.setTimeout(failOpen,entrance.failOpenMs);else showAll();};
+ let watchdog=window.setTimeout(failOpen,entrance.failOpenMs);
  const animate=(el:HTMLElement,delay:number,paused=false)=>{
   seen.add(el);el.dataset.entranceSeen='';
   const a=el.animate([{opacity:0,translate:`0 ${entrance.distance}px`},{opacity:1,translate:'0 0'}],
@@ -54,7 +57,7 @@ export function initEntrances(){
   }
   root.removeAttribute('data-entrance-armed');
   const begin=()=>{
-   if(started||root.hasAttribute('data-motion-arriving')||root.classList.contains('motion-busy'))return;
+   if(started||root.hasAttribute('data-motion-arriving')||choosing()||root.classList.contains('motion-busy'))return;
    started=true;gate?.disconnect();clearTimeout(watchdog);
    running.forEach(a=>a.play());
    // During only the name wrapper entrance, keep the existing cutouts in screen alignment.
@@ -75,7 +78,7 @@ export function initEntrances(){
    },{threshold:0,rootMargin:'0px 0px -24px 0px'});
    targets.forEach(el=>{if(el.getBoundingClientRect().bottom<=0)finish(el);else observer?.observe(el);});
   };
-  gate=new MutationObserver(begin);gate.observe(root,{attributes:true,attributeFilter:['class','data-motion-arriving']});begin();
+  gate=new MutationObserver(begin);gate.observe(root,{attributes:true,attributeFilter:['class','data-motion-arriving','data-entry-choice']});begin();
   document.addEventListener('focusin',e=>{if(!(e.target instanceof Element)||e.target.id==='main')return;
    [...load,...targets].filter(el=>el===e.target||el.contains(e.target as Node)||(e.target as Element).contains(el)).forEach(finish);
   },{signal});

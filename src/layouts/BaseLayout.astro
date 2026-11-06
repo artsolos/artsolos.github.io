@@ -12,10 +12,11 @@ import '../styles/entrances.css';
 import MotionLayer from '../components/MotionLayer.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
-import InterfaceSounds from '../components/InterfaceSounds.astro';
+import EntryChoice from '../components/EntryChoice.astro';
 import { ClientRouter } from 'astro:transitions';
 import { profile } from '../data/profile';
 import { href } from '../lib/site';
+import { interfaceSound } from '../lib/interface-sound-settings';
 
 interface Props {
   title?: string;
@@ -29,6 +30,9 @@ const fullTitle = title ? `${title} · ${profile.name}` : `${profile.name} · ${
 // Canonical and absolute social URLs only exist once the publishing address (site) is known.
 const canonical = Astro.site && !noindex ? new URL(Astro.url.pathname, Astro.site).href : undefined;
 const ogImage = Astro.site ? new URL(href(image), Astro.site).href : undefined;
+const home = href();
+const isHome = Astro.url.pathname === home || Astro.url.pathname === `${home}index.html`;
+const entryKey = interfaceSound.entryKey;
 ---
 
 <!doctype html>
@@ -43,6 +47,18 @@ const ogImage = Astro.site ? new URL(href(image), Astro.site).href : undefined;
         if(!location.hash && performance.getEntriesByType('navigation')[0]?.type!=='back_forward' && !matchMedia('(prefers-reduced-motion: reduce)').matches){
           document.documentElement.setAttribute('data-entrance-armed','');
           setTimeout(()=>document.documentElement.removeAttribute('data-entrance-armed'),document.documentElement.hasAttribute('data-motion-arriving')?4200:1200);
+        }
+      } catch {}
+    </script>
+    <script is:inline define:vars={{ entryKey, home }}>
+      // First document load of a session only: the Home sound choice. Any first landing
+      // (project links, refreshes, Back/Forward, #anchors) marks the session as seen.
+      try {
+        if (document.readyState === 'loading') {
+          var seen = sessionStorage.getItem(entryKey), nav = performance.getEntriesByType('navigation')[0];
+          sessionStorage.setItem(entryKey, 'true');
+          if (!seen && location.pathname.replace(/index\.html$/, '') === home && !location.hash && (!nav || nav.type === 'navigate'))
+            document.documentElement.setAttribute('data-entry-choice', '');
         }
       } catch {}
     </script>
@@ -74,7 +90,7 @@ const ogImage = Astro.site ? new URL(href(image), Astro.site).href : undefined;
       <slot />
     </main>
     <SiteFooter />
-    <InterfaceSounds />
+    {isHome && <EntryChoice />}
     <MotionLayer />
     <script>
       import {initEntrances} from '../scripts/entrances';

@@ -48,6 +48,7 @@ const Diagram = !cover && ids[0] ? diagrams[ids[0]].component : undefined;
     position: relative;
     overflow: hidden;
     background: var(--surface);
+    border-radius: var(--r-frame);
     aspect-ratio: 16 / 10;
   }
   .visual :global(picture),
@@ -66,6 +67,20 @@ const Diagram = !cover && ids[0] ? diagrams[ids[0]].component : undefined;
   }
   .is-vector :global(img), .is-contained :global(img) {
     object-fit: contain;
+  }
+  /* One consistent outer frame; contained figures sit on a graphite mat instead of
+     touching the frame edge. The image itself is never cropped or altered. */
+  .visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--divider);
+    border-radius: inherit;
+    pointer-events: none;
+    transition: border-color 200ms ease;
+  }
+  .is-contained:not(.is-diagram) {
+    padding: clamp(6px, 5%, 28px);
   }
   .is-diagram :global(svg) {
     max-height: 100%;

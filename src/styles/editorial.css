@@ -190,3 +190,84 @@ body[data-stage="layout"] .case .body{grid-template-columns:230px minmax(0,1fr);
  body[data-stage="layout"] .case .body{display:flex;gap:32px}
  body[data-stage="layout"] .case .overview .contribution-summary{font-size:16px}
 }
+
+/* Premium refinement 2026-11-05: one softened rectangle geometry, matted evidence, row alignment. */
+:root{--r-control:8px;--r-frame:6px;--r-panel:10px}
+.intro-copy .btn,.view-switch,.site-header .nav-list li:last-child a,body[data-stage="layout"] .case .overview .inline-links a{border-radius:var(--r-control)}
+.view-switch button{border-radius:5px}
+.search-label input{border-radius:var(--r-control)}
+/* Case clarity: "What did Arefin do?" reads as the first evidence block; tools are legible. */
+body[data-stage="layout"] .case .overview .contribution-summary{max-width:75ch;padding:22px 26px 24px;background:var(--surface);border:1px solid var(--divider);border-radius:var(--r-frame);box-shadow:inset 3px 0 0 var(--accent)}
+body[data-stage="layout"] .case .contribution-summary h2{margin-bottom:10px;letter-spacing:.08em}
+body[data-stage="layout"] .case .contribution-summary p{font-size:18px;line-height:1.6;color:var(--text)}
+body[data-stage="layout"] .case .tag{font:13px/1.4 var(--font-mono);padding:5px 10px;border-radius:6px;color:var(--text)}
+body[data-stage="layout"] .case .tag-accent{color:var(--accent);border-color:var(--accent-line)}
+body[data-stage="layout"] .case .facts .tag-list{gap:8px}
+/* Title arrows: ink sat on the baseline, ~.27em below cap-centre. Lift to the cap
+   middle (measured), and give the one shared hover response a small diagonal step. */
+.preview-copy h2 span{display:inline-block;margin-left:.3em;transform:translateY(-.26em);transition:transform 200ms cubic-bezier(.22,.61,.36,1)}
+.preview-link:is(:hover,:focus-visible) .preview-copy h2 span{transform:translate(.12em,-.38em)}
+@media(prefers-reduced-motion:reduce){.preview-copy h2 span{transition:none}}
+/* Evidence presentation: the row's frame answers the same hover as its title; figures
+   share one frame, mat, quiet number and caption measure. Images are never cropped. */
+.preview-link:is(:hover,:focus-visible) .visual::after{border-color:var(--control)}
+.project-preview.selected .preview-image .visual{background:var(--surface)}
+/* Captions keep the reports' own figure numbering; no second numbering system is added. */
+body[data-stage="layout"] .case .evidence figure>figcaption{max-width:62ch;font-size:15px;line-height:1.55;color:var(--text-2)}
+body[data-stage="layout"] .case .evidence>.diagram-fig{gap:14px}
+body[data-stage="layout"] .case .evidence>.diagram-fig>svg{padding:clamp(10px,2vw,24px);background:var(--surface);border:1px solid var(--divider);border-radius:var(--r-frame)}
+body[data-stage="layout"] .case .hero-media.diagram-fig>svg{border-radius:4px}
+@media(max-width:750px){body[data-stage="layout"] .case .overview .contribution-summary{padding:18px 18px 20px}body[data-stage="layout"] .case .contribution-summary p{font-size:16px}body[data-stage="layout"] .case .tag{font-size:12px}body[data-stage="layout"] .case .facts .tools{grid-column:1/-1}}
+.intro-copy .btn,body[data-stage="layout"] .case .overview .inline-links a{transition:color 180ms ease,border-color 180ms ease,background-color 180ms ease}
+.intro-copy .btn:hover{border-color:var(--accent);color:var(--accent);background:none}
+body[data-stage="layout"] .case .hero-media{border:1px solid var(--divider);border-radius:var(--r-frame);padding:clamp(12px,3vw,40px)}
+body[data-stage="layout"] .case .hero-media.diagram-fig{padding-bottom:0}
+body[data-stage="layout"] .case .hero-media figcaption{padding:20px 0 clamp(12px,3vw,40px)}
+[data-work] .project-collection:not(.grid-view) h2{line-height:1.15}
+@media(min-width:751px){
+ /* The sticky chapter list ends above the fixed sound control. */
+ body.has-interface-sounds[data-stage="layout"] .case .contents{max-height:calc(100svh - 115px - var(--sound-reserve,0px))}
+ /* Metadata reads from the title's first line rather than the row's vertical centre. */
+ [data-work] .project-collection:not(.grid-view) .preview-link{align-items:start}
+ [data-work] .project-collection:not(.grid-view) h2{align-self:start}
+ [data-work] .project-collection:not(.grid-view) :is(.preview-index,.preview-subject,.preview-period){padding-top:calc((clamp(22px,2.1vw,30px) * 1.15 - 19.2px) / 2)}
+}
+@media(min-width:1101px){
+ [data-work] .project-collection:not(.grid-view) .preview-context{padding-top:calc((clamp(22px,2.1vw,30px) * 1.15 - 19.2px) / 2)}
+}
+
+/* Linear-informed pass, current colors only: calm surfaces, two-tone hierarchy, muted
+   labels with the accent reserved for one signal, 12px minimum labels, exact edges. */
+.two-tone{color:var(--text-2)}.two-tone>span{color:var(--text)}
+/* Labels: one readable size; metadata muted so titles lead. */
+.preview-meta,.preview-context,.work-row-head,body[data-stage="layout"] .case .head .eyebrow,body[data-stage="layout"] .case .facts dt{font-size:12px}
+[data-work] .project-collection:not(.grid-view) :is(.preview-index,.preview-subject,.preview-period){font-size:12px;line-height:1.6}
+.preview-context{line-height:1.6}
+body[data-stage="layout"] .case .facts dt{color:var(--text-2);letter-spacing:.06em;margin-bottom:6px}
+/* Work tools: inactive filters recede; the active one is primary text on an accent rule. */
+.subject-filters button{color:var(--text-2)}
+.subject-filters button[aria-pressed=true]{color:var(--text);border-color:var(--accent)}
+.search-label input{background:var(--surface);border-color:var(--control)}
+.search-label input::placeholder{color:var(--text-2)}
+/* Secondary buttons sit on a quiet surface instead of floating as outlines. */
+.intro-copy .btn,body[data-stage="layout"] .case .overview .inline-links a,.entry-actions button{background:var(--surface)}
+.intro-copy .btn:hover,body[data-stage="layout"] .case .overview .inline-links a:hover,.entry-actions button:hover{background:var(--raised)}
+/* Elevated panels: one hairline and a faint top highlight, no glow. */
+.sound-panel,.entry-card{box-shadow:inset 0 1px 0 rgb(255 255 255 / .04),0 14px 32px rgb(0 0 0 / .34)}
+body[data-stage="layout"] .case .overview .contribution-summary{box-shadow:inset 3px 0 0 var(--accent),inset 0 1px 0 rgb(255 255 255 / .04)}
+/* Chapter list: a hairline spine; the chapter being read is marked in place. */
+@media(min-width:751px){
+ body[data-stage="layout"] .case .contents{border-left:1px solid var(--divider);padding-left:0;gap:2px}
+ body[data-stage="layout"] .case .contents .eyebrow{padding:0 0 10px 16px}
+ body[data-stage="layout"] .case .contents a{padding:6px 0 6px 16px;margin-left:-1px;border-left:1px solid transparent;transition:color 180ms ease,border-color 180ms ease}
+ body[data-stage="layout"] .case .contents a[aria-current]{color:var(--text);border-left-color:var(--accent)}
+}
+@media(max-width:750px){
+ .intro-kicker{font-size:12px}
+ .project-preview.selected .preview-meta{font-size:12px}
+ [data-work] .project-collection:not(.grid-view) .preview-subject{font-size:12px}
+ .editorial-section-head .eyebrow{font-size:12px}
+ /* Footer links start on the page edge like the text above them. */
+ .site-footer ul{margin-left:calc(var(--s-2) * -1)}
+}
+@media(prefers-reduced-motion:reduce){body[data-stage="layout"] .case .contents a{transition:none}}

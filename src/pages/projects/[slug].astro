@@ -230,6 +230,11 @@ const hasLinks = d.reports.length + d.repositories.length + d.demos.length + d.d
     )
   }
 </BaseLayout>
+<script>
+  import { onPage } from '../../lib/page-lifecycle';
+  import { initCaseContents } from '../../scripts/case-contents';
+  onPage(signal => initCaseContents(signal));
+</script>
 
 <style>
   .head {

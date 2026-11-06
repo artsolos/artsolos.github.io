@@ -1,22 +1,43 @@
 ---
 import { href } from '../lib/site';
 ---
-<aside class="sound-dock" aria-label="Interface sound controls" hidden transition:persist="site-audio">
-  <div class="sound-settings" id="sound-settings" hidden>
-    <label class="sound-volume" for="sound-volume">Volume <output id="sound-volume-value">25%</output>
-      <input type="range" id="sound-volume" min="0" max="100" value="25" step="1" />
-    </label>
-    <label><input type="checkbox" data-sound-option="click" checked /> Click sounds</label>
-    <label><input type="checkbox" data-sound-option="transition" checked /> Navigation sounds</label>
-  </div>
-  <div class="sound-bar">
-    <span class="sound-status" role="status" aria-live="polite">Sound starts off</span>
-    <div class="sound-buttons">
-      <button type="button" data-sound-toggle aria-pressed="false">Sound off</button>
-      <button type="button" data-sound-settings aria-label="Sound settings" aria-expanded="false" aria-controls="sound-settings">
-        <svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M4 3v14M10 3v14M16 3v14M1 7h6M7 13h6M13 6h6" /></svg>
+<aside class="sound-dock" aria-label="Sound" hidden transition:persist="site-audio">
+  <button type="button" class="sound-trigger" data-sound-trigger aria-expanded="false" aria-controls="sound-panel">
+    <svg class="sound-icon" viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linejoin="round" aria-hidden="true">
+      <path d="M3 7.75h3L10 4.5v11L6 12.25H3z" />
+      <path class="sound-icon-on" d="M13 7.5c.9 1.2.9 3.8 0 5M15.4 5.5c1.9 2.4 1.9 6.6 0 9" stroke-linecap="round" />
+      <path class="sound-icon-off" d="M13.25 8l4 4M17.25 8l-4 4" stroke-linecap="round" />
+    </svg>
+    <span class="sound-trigger-label">Sound off</span><span class="visually-hidden">, sound settings</span>
+    <span class="sound-indicator" aria-hidden="true"></span>
+  </button>
+  <p class="sound-status" role="status" aria-live="polite"></p>
+  <div class="sound-panel" id="sound-panel" role="group" aria-labelledby="sound-panel-title" hidden>
+    <div class="sound-panel-head">
+      <p class="sound-eyebrow" id="sound-panel-title">Sound</p>
+      <button type="button" class="sound-close" data-sound-close>Close
+        <svg viewBox="0 0 20 20" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" /></svg>
       </button>
     </div>
+    <button type="button" class="sound-switch is-master" role="switch" aria-checked="false" data-sound-master>
+      <span>Interface sounds</span>
+      <span class="sound-switch-state" aria-hidden="true">Off</span><span class="sound-track" aria-hidden="true"><i></i></span>
+    </button>
+    <div class="sound-volume">
+      <label for="sound-volume">Volume</label><output for="sound-volume" id="sound-volume-value">25%</output>
+      <input type="range" id="sound-volume" min="0" max="100" value="25" step="1" />
+    </div>
+    <div class="sound-effects">
+      <button type="button" class="sound-switch" role="switch" aria-checked="true" data-sound-option="click">
+        <span>Click feedback</span>
+        <span class="sound-switch-state" aria-hidden="true">On</span><span class="sound-track" aria-hidden="true"><i></i></span>
+      </button>
+      <button type="button" class="sound-switch" role="switch" aria-checked="true" data-sound-option="transition">
+        <span>Page transitions</span>
+        <span class="sound-switch-state" aria-hidden="true">On</span><span class="sound-track" aria-hidden="true"><i></i></span>
+      </button>
+    </div>
+    <p class="sound-note" data-sound-note>Brief effects only. You can browse in silence.</p>
   </div>
   <audio data-sound="click" src={href('audio/interface/click.mp3')} preload="none"></audio>
   <audio data-sound="transition" src={href('audio/interface/transition.mp3')} preload="none"></audio>
@@ -26,22 +47,79 @@ import { href } from '../lib/site';
   initInterfaceSounds();
 </script>
 <style is:global>
-  body.has-interface-sounds{padding-bottom:var(--sound-dock-height,60px)}
-  .sound-dock{position:fixed;bottom:0;left:0;right:0;z-index:60;background:var(--bg);border-top:1px solid var(--divider);padding-bottom:env(safe-area-inset-bottom);color:var(--text)}
-  .sound-dock[hidden],.sound-settings[hidden]{display:none}
-  .sound-bar{min-height:60px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px var(--gutter)}
-  .sound-status{font:10px/1.5 'IBM Plex Mono',monospace;color:var(--text-2)}
-  .sound-buttons{display:flex;gap:6px;flex-shrink:0}
-  .sound-buttons button{min-height:44px;min-width:44px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--divider);background:transparent;color:var(--text);font:12px 'IBM Plex Mono',monospace;cursor:pointer;transition:color 180ms,background-color 180ms,border-color 180ms}
-  .sound-buttons button:hover,.sound-buttons button[aria-pressed=true],.sound-buttons button[aria-expanded=true]{color:var(--accent);background:var(--surface);border-color:var(--control)}
+  /* The same persistent control sits in the header on narrow screens. */
+  :root{--sound-h:44px;--sound-offset:16px;--sound-reserve:calc(var(--sound-h) + var(--sound-offset) * 2 + env(safe-area-inset-bottom))}
+  body.has-interface-sounds{padding-bottom:var(--sound-reserve)}
+  html:has(body.has-interface-sounds){scroll-padding-bottom:var(--sound-reserve)}
+  .sound-dock{position:fixed;left:var(--gutter);bottom:calc(var(--sound-offset) + env(safe-area-inset-bottom));z-index:45;color:var(--text);font-family:var(--font-mono)}
+  .sound-dock[hidden],.sound-panel[hidden]{display:none}
   .sound-dock :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-  .sound-settings{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:12px 26px;background:var(--surface);padding:16px var(--gutter);border-bottom:1px solid var(--divider)}
-  .sound-settings label{font-size:12px;min-height:44px;display:flex;align-items:center;gap:9px;cursor:pointer}
-  .sound-settings .sound-volume{display:grid;grid-template-columns:1fr auto;gap:0;width:200px}
-  .sound-volume output{font:11px 'IBM Plex Mono',monospace;color:var(--accent)}
-  .sound-volume input{grid-column:1/-1;width:100%;height:36px;margin:0}
-  .sound-settings input{accent-color:var(--accent)}
-  .sound-settings input[type=checkbox]{width:18px;height:18px}
-  @media(max-width:40rem){.sound-settings{gap:0 18px;justify-content:flex-start}.sound-settings .sound-volume{width:100%}.sound-settings label{font-size:11px}.sound-status{max-width:45%}}
-  @media(prefers-reduced-motion:reduce){.sound-buttons button{transition:none}}
+  :where(.sound-dock button){font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+
+  .sound-trigger{display:inline-flex;align-items:center;gap:10px;width:132px;height:var(--sound-h);padding:0 12px 0 11px;background:var(--bg);border:1px solid var(--divider);border-radius:var(--r-control,8px);color:var(--text-2);font-size:12px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;transition:color 180ms ease,border-color 180ms ease,background-color 180ms ease}
+  .sound-trigger:hover,.sound-trigger[aria-expanded=true]{color:var(--text);border-color:var(--control);background:var(--surface)}
+  .sound-trigger:active{background:var(--raised)}
+  .sound-icon{flex:none}
+  .sound-icon-on,.is-on .sound-icon-off{display:none}
+  .is-on .sound-icon-on{display:inline}
+  .is-on .sound-trigger{color:var(--text);border-color:var(--control)}
+  .sound-trigger-label{flex:1;text-align:left;line-height:1}
+  .sound-indicator{width:6px;height:6px;flex:none;border-radius:50%;background:transparent;border:1px solid var(--divider);transition:background-color 180ms ease,border-color 180ms ease}
+  .is-on .sound-indicator{background:var(--accent);border-color:var(--accent)}
+
+  .sound-status{position:absolute;left:calc(100% + 8px);bottom:0;height:var(--sound-h);display:flex;align-items:center;width:max-content;max-width:min(260px,calc(100vw - var(--gutter) * 2 - 140px));padding:0 12px;background:var(--surface);border:1px solid var(--divider);border-left-color:var(--accent);border-radius:var(--r-control,8px);font-size:12px;line-height:1.35;color:var(--text)}
+  .sound-status:empty,.sound-dock:has(.sound-panel:not([hidden])) .sound-status{position:absolute;width:1px;height:1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+  .sound-panel{position:absolute;left:0;bottom:calc(100% + 8px);width:296px;max-width:calc(100vw - var(--gutter) * 2);padding:6px 18px 16px;background:var(--surface);border:1px solid var(--divider);border-top-color:#3a4b5f;border-radius:var(--r-panel,10px);box-shadow:0 14px 32px rgb(0 0 0 / .34);font-family:var(--font-sans)}
+  .sound-panel:not([hidden]){animation:sound-panel-in 200ms cubic-bezier(.22,.61,.36,1)}
+  @keyframes sound-panel-in{from{opacity:0;transform:translateY(6px)}}
+  .sound-panel-head{display:flex;align-items:center;justify-content:space-between;margin-right:-10px}
+  .sound-eyebrow{font:500 12px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2)}
+  .sound-close{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 10px;font:12px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);transition:color 180ms ease}
+  .sound-close:hover{color:var(--text)}
+
+  .sound-switch{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;text-align:left;font-size:15px;line-height:1.3;transition:color 180ms ease}
+  .sound-switch>span:first-child{flex:1}
+  .sound-switch-state{font:12px var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text-2);min-width:3ch;text-align:right}
+  .sound-track{position:relative;width:34px;height:18px;flex:none;border:1px solid var(--control);border-radius:6px;transition:border-color 180ms ease}
+  .sound-track i{position:absolute;top:3px;left:3px;width:10px;height:10px;border-radius:3px;background:var(--control);transition:transform 180ms cubic-bezier(.22,.61,.36,1),background-color 180ms ease}
+  .sound-switch[aria-checked=true] .sound-track{border-color:var(--accent)}
+  .sound-switch[aria-checked=true] .sound-track i{transform:translateX(16px);background:var(--accent)}
+  .sound-switch[aria-checked=true] .sound-switch-state{color:var(--text)}
+  .sound-switch:hover .sound-track{border-color:var(--text-2)}
+  .sound-switch[aria-checked=true]:hover .sound-track{border-color:var(--accent)}
+  .sound-switch:focus-visible{outline-offset:0}
+  /* With the master off, effect switches remain operable and readable as kept choices. */
+  .sound-dock:not(.is-on) .sound-effects .sound-switch>span:first-child,.sound-dock:not(.is-on) .sound-volume label{color:var(--text-2)}
+  .sound-dock:not(.is-on) .sound-effects .sound-switch[aria-checked=true] .sound-track{border-color:var(--accent-line)}
+  .sound-dock:not(.is-on) .sound-effects .sound-switch[aria-checked=true] .sound-track i{background:var(--accent-line)}
+
+  .sound-volume{display:grid;grid-template-columns:1fr auto;align-items:end;padding-top:8px;font-size:15px}
+  .sound-volume output{font:12px var(--font-mono);color:var(--accent);font-variant-numeric:tabular-nums;min-width:4ch;text-align:right}
+  .sound-volume input{grid-column:1/-1;width:100%;height:36px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer;--fill:25%}
+  .sound-volume input::-webkit-slider-runnable-track{height:1px;background:linear-gradient(to right,var(--accent) var(--fill),var(--divider) var(--fill))}
+  .sound-volume input::-moz-range-track{height:1px;background:var(--divider)}
+  .sound-volume input::-moz-range-progress{height:1px;background:var(--accent)}
+  .sound-volume input::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;margin-top:-6px;background:var(--bg);border:1px solid var(--accent);border-radius:3px;transform:rotate(45deg);transition:background-color 180ms ease}
+  .sound-volume input::-moz-range-thumb{width:10px;height:10px;background:var(--bg);border:1px solid var(--accent);border-radius:3px}
+  .sound-volume input:hover::-webkit-slider-thumb,.sound-volume input:active::-webkit-slider-thumb{background:var(--accent)}
+  .sound-volume input:focus-visible{outline-offset:0}
+  .sound-dock:not(.is-on) .sound-volume output{color:var(--text-2)}
+
+  .sound-effects{margin-top:10px;padding-top:4px;border-top:1px solid var(--divider)}
+  .sound-note{margin-top:8px;font-size:13px;line-height:1.45;color:var(--text-2)}
+
+  @media(max-width:40rem){
+    :root{--sound-reserve:0px}
+    .sound-dock{position:static}
+    .sound-trigger{display:flex;justify-content:center;width:var(--sound-h);padding:0}
+    .sound-trigger-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+    .sound-indicator{display:none}
+    .sound-panel,.sound-status{inset:100% var(--gutter) auto auto}
+    .sound-panel{max-height:calc(100dvh - var(--header-h) - 48px);overflow:auto}
+    .sound-panel,.sound-status{max-width:calc(100% - var(--gutter) * 2)}
+    .sound-status{height:auto;min-height:var(--sound-h)}
+  }
+  @media(prefers-reduced-motion:reduce){.sound-dock *{transition:none!important;animation:none!important}}
+  @media(forced-colors:active){.sound-track i,.is-on .sound-indicator{background:CanvasText}.sound-indicator{border-color:CanvasText}}
 </style>
