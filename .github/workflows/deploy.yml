@@ -34,6 +34,8 @@ jobs:
           fi
       - name: Validate, build, and upload
         uses: withastro/action@v6
+        env:
+          CONTACT_FORM_ID: ${{ vars.CONTACT_FORM_ID }}
         with:
           node-version: 24
           build-cmd: npm run verify

@@ -1,25 +1,22 @@
-export interface MessageValues { name: string; email: string; message: string; honey: string; url: string }
 export class DeliveryError extends Error {
-  reason:'activation'|'rejected'|'unconfirmed';
-  constructor(reason:'activation'|'rejected'|'unconfirmed'){super(reason);this.reason=reason;}
+  readonly reason:'rejected'|'unavailable'|'unconfirmed';
+  constructor(reason:DeliveryError['reason']){super(reason);this.reason=reason;}
 }
-/** HTTP 200 alone is not acceptance. FormSubmit also returns a success flag. */
+/** Formspree signals acceptance with a JSON next URL. The form stays on this page. */
 export function acceptedSubmission(body: unknown): boolean {
   if(!body || typeof body!=='object')return false;
-  const data=body as {success?:unknown;message?:unknown};
-  return (data.success===true || data.success==='true') && !/activat|confirm.*(?:email|form)|captcha|error|fail/i.test(String(data.message??''));
+  const data=body as {next?:unknown;error?:unknown;errors?:unknown};
+  return typeof data.next==='string' && data.next.length>0 && !data.error && !data.errors;
 }
-export async function deliverMessage(endpoint:string, values:MessageValues, signal:AbortSignal, fetcher:typeof fetch=fetch):Promise<void>{
-  if(values.honey)throw new DeliveryError('rejected');
+export async function deliverMessage(endpoint:string, values:FormData, signal:AbortSignal, fetcher:typeof fetch=fetch):Promise<void>{
+  if(values.get('_gotcha'))throw new DeliveryError('rejected');
   let response:Response;
   try{
-    response=await fetcher(endpoint,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},signal,body:JSON.stringify({
-      name:values.name,email:values.email,message:values.message,_replyto:values.email,
-      _subject:'New portfolio message — Arefin Mahmood',_honey:'',_url:values.url,
-    })});
+    response=await fetcher(endpoint,{method:'POST',headers:{Accept:'application/json'},signal,body:values});
   }catch{throw new DeliveryError('unconfirmed');}
+  if(response.status===404 || response.status===429 || response.status>=500)throw new DeliveryError('unavailable');
+  if(!response.ok)throw new DeliveryError('rejected');
   let body:unknown;
   try{body=await response.json();}catch{throw new DeliveryError('unconfirmed');}
-  if(/activat|confirm.*(?:email|form)/i.test(String((body as {message?:unknown})?.message??'')))throw new DeliveryError('activation');
-  if(!response.ok || !acceptedSubmission(body))throw new DeliveryError('rejected');
+  if(!acceptedSubmission(body))throw new DeliveryError('rejected');
 }

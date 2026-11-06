@@ -1,6 +1,6 @@
 import { deliverMessage, DeliveryError } from '../lib/contact-delivery';
 
-export function initContactForm(form:HTMLFormElement){
+export function initContactForm(form:HTMLFormElement,signal:AbortSignal){
   const fields=[...form.querySelectorAll<HTMLInputElement|HTMLTextAreaElement>('.form-fields input,.form-fields textarea')];
   const status=form.querySelector<HTMLElement>('[data-form-status]')!;
   const button=form.querySelector<HTMLButtonElement>('[type=submit]')!;
@@ -16,25 +16,30 @@ export function initContactForm(form:HTMLFormElement){
     return !message;
   };
   form.noValidate=true;
-  fields.forEach(field=>field.addEventListener('input',()=>{if(field.getAttribute('aria-invalid')==='true')validate(field);if(status.dataset.state==='success')setStatus('','');}));
+  fields.forEach(field=>field.addEventListener('input',()=>{if(field.getAttribute('aria-invalid')==='true')validate(field);if(status.dataset.state==='success')setStatus('','');},{signal}));
   form.addEventListener('submit',async e=>{
     e.preventDefault();if(sending)return;
     const invalid=fields.filter(field=>!validate(field));
     if(invalid.length){setStatus('Please check the highlighted fields.','error');invalid[0].focus();return;}
     const values=new FormData(form);
-    if(String(values.get('_honey')??'')){setStatus('Unable to send this message. Please use the email link below.','error');return;}
+    fields.forEach(field=>values.set(field.name,field.value.trim()));
     sending=true;request=new AbortController();const timeout=window.setTimeout(()=>request?.abort(),20000);
     button.disabled=true;button.textContent='Sending…';form.setAttribute('aria-busy','true');fields.forEach(f=>f.readOnly=true);setStatus('Sending your message…','loading');
     try{
-      await deliverMessage(form.dataset.endpoint!,{name:String(values.get('name')).trim(),email:String(values.get('email')).trim(),message:String(values.get('message')).trim(),honey:'',url:location.origin+location.pathname},request.signal);
+      await deliverMessage(form.action,values,request.signal);
       form.reset();setStatus('Your message was accepted. Thank you for getting in touch.','success');
     }catch(error){
       const reason=error instanceof DeliveryError?error.reason:'unconfirmed';
-      setStatus(reason==='activation'?'Message delivery is awaiting activation. Your message is still here; please use the email link below.':reason==='rejected'?'The delivery service did not accept your message. Your text is still here. Please try again or use the email link below.':'We couldn’t confirm sending. Your message is still here. Please check your connection; retrying may send a duplicate.','error');
+      const errorMessage={
+        rejected:'The delivery service did not accept your message.',
+        unavailable:'The contact form service is temporarily unavailable.',
+        unconfirmed:'We couldn’t confirm that your message was sent.',
+      }[reason];
+      setStatus(`${errorMessage} Your message is still here. You can use the email link below to contact me directly.`,'error');
     }finally{
       clearTimeout(timeout);sending=false;request=null;button.disabled=false;button.innerHTML='Send message <span aria-hidden="true">↗</span>';form.removeAttribute('aria-busy');fields.forEach(f=>f.readOnly=false);status.focus({preventScroll:true});
     }
-  });
+  },{signal});
   // A cancelled in-flight request must not leave cached form controls disabled.
   return ()=>request?.abort();
 }
